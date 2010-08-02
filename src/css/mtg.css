@@ -1,0 +1,70 @@
+#leftpane {
+	float: left;
+	border: 1px solid;
+}
+
+.card {
+
+}
+
+.cardPlay {
+	border: 1px solid;
+	position: absolute;
+	background-color: Gray;
+}
+
+.cardHand {
+	border: 1px solid;
+	width: 48px;
+	height: 67px;
+	position: absolute;	
+}
+
+.cardUntapped {
+	width: 48px;
+	height: 67px;
+}
+
+.cardTapped {
+	width: 67px;
+	height: 48px;
+}
+
+.cardHidden {
+	display: none;
+}
+
+#mtgapplet {
+	position: absolute;
+	top: -9999px;
+}
+
+#cardinfo {
+	width: 312px;
+	height: 445px;
+	border: 1px solid;
+}
+
+#storage {
+	display: none;
+}
+
+#hand {
+	width: 312px;
+	height: 200px;
+	border: 1px solid;
+}
+
+#mainarea {
+	float: left;
+}
+
+#playarea {
+	width: 900px;
+	height: 600px;
+	border: 1px solid;
+}
+
+#cardimg {
+
+}
