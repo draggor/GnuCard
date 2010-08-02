@@ -5,9 +5,9 @@ var	net = require('net'),
 	io = require('../../lib/Socket.IO-node/');
 
 var SRC = {
-	html: '../../src/html/',
-	css: '../../src/css/',
-	js: '../../src/js/'
+	html: './src/html/',
+	css: './src/css/',
+	js: './src/js/'
 };
 
 var index = fs.readFileSync(SRC.html + "index.html");
