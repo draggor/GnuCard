@@ -1,14 +1,13 @@
 var socket;
 
 function init() {
-	io.setPath('/js/Socket.IO/');
-	socket = new io.Socket('localhost', {port:9000});
+	socket = new io.Socket(null, {rememberTransport: false, port:9000});
 	socket.connect();
-	socket.on('message', function(data) {
+	socket.addEvent('message', function(data) {
 	      alert(data);
 	      eval(data);
 	});
-
+	
 	$("#library").hide().contextMenu([
 		{"Draw 1 Card":function(menuItem,menu){
 			send_message("draw 1");
