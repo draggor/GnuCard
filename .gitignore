@@ -1,2 +1,8 @@
+# Filetypes
+*.swp
+.*.swp
+
+# Paths
 /src/js/Socket.IO
 /lib/Socket.IO-node
+
