@@ -14,19 +14,26 @@ function prepJS(funcName, message) {
 	return funcName + '("' + message + '");';
 }
 
-exports.calljs = calljs;
-exports.callalljs = callalljs;
-
-exports.dispatch = function (client, json) {
-	var func = COMMANDS[json[0]];
-	var args = json[1];
-	args['client'] = client;
+function runCmd(client, funcName, args) {
+	var func = COMMANDS[funcName];
 
 	if(func) {
 		func(client, args);
 	} else {
-		calljs(client, 'notify', 'Function ' + json[0] + ' not found!');
+		calljs(client, 'notify', 'Function ' + funcName + ' not found!');
 	}
+}
+
+exports.calljs = calljs;
+
+exports.callalljs = callalljs;
+
+exports.dispatch = function (client, json) {
+	var funcName = json[0];
+	var args = json[1];
+	args['client'] = client;
+
+	runCmd(client, funcName, args);
 };
 
 COMMANDS.logon = function(client, args) {
@@ -44,6 +51,6 @@ COMMANDS.logon = function(client, args) {
 		game.clientsToPlayers[args.client] = player;
 		game.namesToPlayers[args.name] = player;
 		callalljs(client, 'notify', args.name + ' logged on!');
-		COMMANDS.updateCards(client);
+		runCmd(client, 'updateCards', args);
 	}
 };
