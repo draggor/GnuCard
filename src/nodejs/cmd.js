@@ -1,4 +1,21 @@
+var game = require('./game');
+
 var COMMANDS = {};
+
+function calljs(client, func, args) {
+	client.send(prepJS(func, args));
+}
+
+function callalljs(client, func, args) {
+	client.broadcast(prepJS(func, args));
+}
+
+function prepJS(funcName, message) {
+	return funcName + '("' + message + '");';
+}
+
+exports.calljs = calljs;
+exports.callalljs = callalljs;
 
 exports.dispatch = function (client, json) {
 	var func = COMMANDS[json[0]];
@@ -6,18 +23,27 @@ exports.dispatch = function (client, json) {
 	args['client'] = client;
 
 	if(func) {
-		func(args);
+		func(client, args);
 	} else {
-		args['message'] = "Function " + json[0] + " not found!";
-		COMMANDS.notify(args);
+		calljs(client, 'notify', 'Function ' + json[0] + ' not found!');
 	}
 };
 
-COMMANDS.notify = function(args) {
-	var msg = 'notify("' + args.message + '");';
-	args.client.send(msg);
-};
+COMMANDS.logon = function(client, args) {
+	var p = game.namesToPlayers[args.name];
 
-COMMANDS.logon = function(args) {
-	var p = namesToPlayers[args.name];
-	var player = new Player(args.client, args.name, args.pass);
+	if(p) {
+		if(args.pass === p.pass) {
+			game.clientsToPlayers[client] = p;
+			p.client = client;
+		} else {
+			calljs(client, 'notify', "WRONG PASS!");
+		}
+	} else {
+		var player = new Player(args.client, args.name, args.pass);
+		game.clientsToPlayers[args.client] = player;
+		game.namesToPlayers[args.name] = player;
+		callalljs(client, 'notify', args.name + ' logged on!');
+		COMMANDS.updateCards(client);
+	}
+};
