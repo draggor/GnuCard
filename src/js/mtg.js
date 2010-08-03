@@ -168,6 +168,7 @@ function toggle_tap(id) {
 
 function ev_logon(event) {
 	var msg = "logon " + $("#logon_name").val() + " " + $("#logon_pass").val();
+	msg = JSON.stringify(['logon', {name: $("#logon_name").val(), pass: $("#logon_pass").val()}]);
 	send_message(msg);
 	$("#logon_name").hide();
 	$("#logon_pass").hide();

@@ -2,7 +2,8 @@ var	net = require('net'),
 	http = require('http'),
 	url = require('url'),
 	fs = require('fs'),
-	io = require('../../lib/Socket.IO-node/');
+	io = require('../../lib/Socket.IO-node/'),
+	cmd = require('./cmd');
 
 var SRC = {
 	html: './src/html/',
@@ -30,14 +31,14 @@ var server = http.createServer(function(req, res) {
 		res.end();
 //		console.log('Request Done: ' + path);
 	} else if(pieces[2] != null) {
-		dispatch(path, pieces, res);
+		dispatchURL(path, pieces, res);
 	} else {
 		res.end();
 		console.log('Request null: ' + path);
 	}
 });
 
-function dispatch(path, pieces, res) {
+function dispatchURL(path, pieces, res) {
 	var head = HEAD_INFO[path.split('.').pop()];
 	switch(pieces[1]) {
 		case 'css':
@@ -70,14 +71,17 @@ function dispatch(path, pieces, res) {
 	}
 }
 
-server.listen(9000);
+exports.startServer = function(port) {
+	port = port || 80;
+	server.listen(port);
 
-var socket = io.listen(server);
+	var socket = io.listen(server);
 
-socket.on('connection', function(client) {
-	console.log('websocket shit');
-	client.on('message', function(message) {
-		console.log(message);
-		client.send('alert("' + message + '");');
+	socket.on('connection', function(client) {
+		client.on('message', function(message) {
+			console.log('Socket: ' + message);
+			var json = JSON.parse(message);
+			cmd.dispatch(client, json);
+		});
 	});
-});
+}
