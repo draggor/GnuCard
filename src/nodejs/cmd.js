@@ -47,7 +47,7 @@ COMMANDS.logon = function(client, args) {
 			calljs(client, 'notify', "WRONG PASS!");
 		}
 	} else {
-		var player = new Player(args.client, args.name, args.pass);
+		var player = new game.Player(args.client, args.name, args.pass);
 		game.clientsToPlayers[args.client] = player;
 		game.namesToPlayers[args.name] = player;
 		callalljs(client, 'notify', args.name + ' logged on!');

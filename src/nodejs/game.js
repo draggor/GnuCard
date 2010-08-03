@@ -16,6 +16,8 @@ Player.prototype.zones = {
 	play: []
 };
 
+exports.Player = Player;
+
 function CardStub(id) {
 	this.id = id;
 }
@@ -27,3 +29,5 @@ CardStub.prototype.tapped = false;
 CardStub.prototype.owner = '';
 CardStub.prototype.controller = '';
 CardStub.prototype.pic = '';
+
+exports.CardStub = CardStub;
