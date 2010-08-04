@@ -78,8 +78,10 @@ exports.startServer = function(port) {
 	var socket = io.listen(server);
 
 	socket.on('connection', function(client) {
+		client.toString = function() { return client.sessionId; };
+
 		client.on('message', function(message) {
-			console.log('Socket: ' + message);
+			console.log('Socket ' + client + ': ' + message);
 			var json = JSON.parse(message);
 			cmd.dispatch(client, json);
 		});

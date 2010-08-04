@@ -4,22 +4,21 @@ function init() {
 	socket = new io.Socket(null, {rememberTransport: false, port:9000});
 	socket.connect();
 	socket.addEvent('message', function(data) {
-	      alert(data);
 	      eval(data);
 	});
 	
 	$("#library").hide().contextMenu([
 		{"Draw 1 Card":function(menuItem,menu){
-			send_message("draw 1");
+			send_message(['draw', {num:1}]);
 		}},
 		{"View Library":function(menuItem,menu){
-			send_message("view_library");
+			send_message(['view_library', {}]);
 		}},
 		{"Show Library to a player...":function(menuItem,menu){
-			send_message("show_library");
+			send_message(['show_library', {}]);
 		}},
 		{"Shuffle":function(menuItem,menu){
-			send_message("shuffle");
+			send_message(['shuffle', {}]);
 		}}
 	]);
 	$("#graveyard").hide()
@@ -36,7 +35,7 @@ function init() {
 		drop: ev_move_to_hand
 	});
 	$(window).unload(function() {
-        	send_message("disconnect");
+        	send_message(['disconnect', {}]);
         });
 }
 
@@ -45,12 +44,11 @@ function notify(msg) {
 }
 
 function send_message(msg) {
-	socket.send(msg);
+	socket.send(JSON.stringify(msg));
 }
 
 function ev_draw_one(event, ui) {
-	var msg = "draw 1";
-	send_message(msg);
+	send_message(['draw', {num:1}]);
 }
 
 function ev_draw_n(event, ui) {
@@ -59,8 +57,7 @@ function ev_draw_n(event, ui) {
 }
 
 function ev_get_deck_list(event, ui) {
-	var msg = "get_deck_list";
-	send_message(msg);
+	send_message(['getDeckList', {}]);
 }
 
 function deck_selector(list) {
@@ -123,8 +120,7 @@ function view_library(list) {
 
 function ev_move_to_play(event, ui) {
 	if($(ui.draggable).hasClass("cardHand")) {
-		var msg = "move_to_play " + $(ui.draggable).attr("ID");
-		send_message(msg);
+		send_message(['moveToPlay', {id: $(ui.draggable).attr("ID")}]);
 	}
 }
 
@@ -137,8 +133,7 @@ function move_to_play(id) {
 
 function ev_move_to_hand(event, ui) {
 	if($(ui.draggable).hasClass("cardPlay")) {
-		var msg = "move_to_hand " + $(ui.draggable).attr("ID");
-		send_message(msg);
+		send_message(['moveToHand', {id: $(ui.draggable).attr("ID")}]);
 	}
 }
 
@@ -156,8 +151,7 @@ function hide_card(id) {
 }
 
 function ev_toggle_tap(event) {
-	var msg = "toggle_tap " + $(this).attr("ID");
-	send_message(msg);
+	send_message(['toggleTap', {id: $(this).attr("ID")}]);
 }
 
 function toggle_tap(id) {
@@ -167,9 +161,7 @@ function toggle_tap(id) {
 }
 
 function ev_logon(event) {
-	var msg = "logon " + $("#logon_name").val() + " " + $("#logon_pass").val();
-	msg = JSON.stringify(['logon', {name: $("#logon_name").val(), pass: $("#logon_pass").val()}]);
-	send_message(msg);
+	send_message(['logon', {name: $("#logon_name").val(), pass: $("#logon_pass").val()}]);
 	$("#logon_name").hide();
 	$("#logon_pass").hide();
 	$("#logon").hide();
@@ -181,11 +173,11 @@ function ev_logon(event) {
 }
 
 function update_cards() {
-	send_message("update_cards");
+	send_message("updateCards");
 }
 
 function ev_create_card(event) {
-	send_message("create_card");
+	send_message(['createCard', {}]);
 	event.preventDefault();
 }
 
@@ -258,8 +250,7 @@ function pxToInt(px) {
 }
 
 function ev_move_card(event, ui) {
-	var msg = "move_card " + $(this).attr("ID") + " " + ui.offset.top + " " + ui.offset.left;
-	send_message(msg);
+	send_message(['move_card', {id: $(this).attr("ID"), top: ui.offset.top, left: ui.offset.left}]);
 }
 
 function move_card(id, td, ld) {

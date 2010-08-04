@@ -1,6 +1,12 @@
-exports.namesToPlayers = {};
-exports.clientsToPlayers = {};
-exports.decks = {};
+var namesToPlayers = {};
+var clientsToPlayers = {};
+var decks = {};
+var cards = {};
+
+exports.namesToPlayers = namesToPlayers;
+exports.clientsToPlayers = clientsToPlayers;
+exports.decks = decks;
+exports.cards = cards;
 
 function Player(client, name, pass) {
 	this.client = client;
@@ -31,3 +37,19 @@ CardStub.prototype.controller = '';
 CardStub.prototype.pic = '';
 
 exports.CardStub = CardStub;
+
+function Deck(name, list) {
+	this.name = name;
+	this.list = list;
+}
+
+exports.Deck = Deck;
+
+function reset() {
+	cards = {};
+	clientsToPlayers = {};
+	namesToPlayers = {};
+	decks = {};
+}
+
+exports.reset = reset;
