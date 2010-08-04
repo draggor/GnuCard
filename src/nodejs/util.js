@@ -7,9 +7,29 @@ exports.getUniqueId = (function() {
 		} else {
 			return id++;
 		}
-	}
-});
+	};
+})();
 
 exports.getRandomCard = function() {
 	return {pic: ''};
 };
+
+exports.shuffle = function(deck) {
+	for(var i = 0; i < deck.length; i++) {
+		var j = Math.floor(Math.random() * deck.length) + 1;
+		var tempi = deck[i];
+		deck[i] = deck[j];
+		deck[j] = deck[i];
+	}
+	return deck;
+};
+
+exports.explodeDeck = function(deck) {
+	var exploded = [];
+	for(var i = 0; i < deck.length; i++) {
+		for(var j = 0; j < parseInt(deck[i][0]); j++) {
+			exploded.push(deck[i][1]);
+		}
+	}
+	return exploded;
+}

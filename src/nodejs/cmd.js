@@ -88,7 +88,7 @@ COMMANDS.createCard = function(client, args) {
 	c.owner = p.name;
 	game.cards[id] = c;
 
-	callalljs(client, 'create_card', id, c.pic);
+	callalljs(client, 'create_card', id + ', ' +c.pic);
 	callalljs(client, 'show_card', id);
 };
 
@@ -98,7 +98,7 @@ COMMANDS.moveCard = function(client, args) {
 	card.top = args.top;
 	card.left = args.left;
 
-	callalljs(client, 'move_card', args.id, args.top, args.left);
+	callalljs(client, 'move_card', args.id + ', ' + args.top + ', ' args.left);
 };
 
 COMMANDS.disconnect = function(client, args) {
@@ -164,8 +164,39 @@ COMMANDS.getDeckList = function(client, args) {
 	calljs(client, 'deck_selector', Object.keys(game.decks));
 };
 
+function createAndShuffleDeck(owner, deckName) {
+	var deck = game.decks[owner];
+
+	deck = explodeDeck(deck);
+	deck = util.shuffle(deck);
+	deck = deck.map(function(img) {
+		var	id = util.getUniqueId(),
+			card = new game.Card(id);
+
+		card.pic = img;
+		card.owner = card.controller = owner;
+		game.cards[id] = card;
+	});
+	return deck;
+}
+
 COMMANDS.selectDeck = function(client, args) {
 	var	player = game.clientsToPlayers[client],
 		deck = createAndShuffleDeck(player.name, args.deck);
 	
+	player.deck = deck;
+	callalljs(client, 'notify', args.deck + ' selected!');	
+};
+
+COMMANDS.draw = function(client, args) {
+	var	player = game.clients.ToPlayers[client],
+		deck = player.deck;
+	
+	for(var i = 0; i < parseInt(args.num); i++) {
+		var card = deck.shift();
+		player.hand.push(card);
+		calljs(client, 'move_card', card.id + ', ' + (456 + i * 12) + ', ' + (12 + i * 12));
+		calljs(client, 'move_to_hand', card.id);
+	}
+	callalljs(client, 'notify', player.name + ' drew ' + args.num + (args.num === 1 ? ' card.' : ' cards.'));
 };

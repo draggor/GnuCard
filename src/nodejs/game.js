@@ -19,7 +19,7 @@ Player.prototype.zones = {
 	hand: [],
 	grave: [],
 	rfg: [],
-	play: []
+	play: [],
 };
 
 exports.Player = Player;

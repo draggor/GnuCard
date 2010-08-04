@@ -1,7 +1,7 @@
 var socket;
 
 function init() {
-	socket = new io.Socket(null, {rememberTransport: false, port:9000});
+	socket = new io.Socket('127.0.0.1', {rememberTransport: false, port:9000});
 	socket.connect();
 	socket.addEvent('message', function(data) {
 	      eval(data);
@@ -12,10 +12,10 @@ function init() {
 			send_message(['draw', {num:1}]);
 		}},
 		{"View Library":function(menuItem,menu){
-			send_message(['view_library', {}]);
+			send_message(['viewLibrary', {}]);
 		}},
 		{"Show Library to a player...":function(menuItem,menu){
-			send_message(['show_library', {}]);
+			send_message(['showLibrary', {}]);
 		}},
 		{"Shuffle":function(menuItem,menu){
 			send_message(['shuffle', {}]);
