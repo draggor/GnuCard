@@ -33,3 +33,14 @@ exports.explodeDeck = function(deck) {
 	}
 	return exploded;
 }
+
+exports.delayMap = function(items, callback, delay) {
+	var i = 0;
+	var f = function() {
+		if(i < items.length) {
+			callback(items[i++]);
+			setTimeout(f, delay);
+		}
+	};
+	f();	
+}

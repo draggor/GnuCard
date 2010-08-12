@@ -98,7 +98,7 @@ COMMANDS.moveCard = function(client, args) {
 	card.top = args.top;
 	card.left = args.left;
 
-	callalljs(client, 'move_card', args.id + ', ' + args.top + ', ' args.left);
+	callalljs(client, 'move_card', args.id + ', ' + args.top + ', ' + args.left);
 };
 
 COMMANDS.disconnect = function(client, args) {
@@ -189,7 +189,7 @@ COMMANDS.selectDeck = function(client, args) {
 };
 
 COMMANDS.draw = function(client, args) {
-	var	player = game.clients.ToPlayers[client],
+	var	player = game.clientsToPlayers[client],
 		deck = player.deck;
 	
 	for(var i = 0; i < parseInt(args.num); i++) {
@@ -199,4 +199,20 @@ COMMANDS.draw = function(client, args) {
 		calljs(client, 'move_to_hand', card.id);
 	}
 	callalljs(client, 'notify', player.name + ' drew ' + args.num + (args.num === 1 ? ' card.' : ' cards.'));
+};
+
+COMMANDS.shuffle = function(client, args) {
+	var player = game.clientsToPlayers[client];
+
+	util.shuffle(player.deck);
+
+	callalljs(client, 'notify', player.name + ' shuffled its deck.');
+};
+
+COMMANDS.viewLibrary = function(client, args) {
+	var player = game.clientsToPlayers[client];
+
+	/** THIS NEEDS JSON PARAM SENDING!!! **/
+
+	callalljs(client, 'notify', player.name + ' is looking at its library.');
 };

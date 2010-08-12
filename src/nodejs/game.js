@@ -2,6 +2,7 @@ var namesToPlayers = {};
 var clientsToPlayers = {};
 var decks = {};
 var cards = {};
+var db = {};
 
 exports.namesToPlayers = namesToPlayers;
 exports.clientsToPlayers = clientsToPlayers;
@@ -37,6 +38,15 @@ CardStub.prototype.controller = '';
 CardStub.prototype.pic = '';
 
 exports.CardStub = CardStub;
+
+var Card = exports.Card = function() {};
+
+Card.prototype.img = '';
+Card.prototype.artist = '';
+Card.prototype.set = '';
+Card.prototype.rarity = '';
+Card.prototype.cc = '';
+Card.prototype.name = '';
 
 function Deck(name, list) {
 	this.name = name;
