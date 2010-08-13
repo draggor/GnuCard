@@ -68,6 +68,16 @@ function spoilerXmlParser(xml) {
 	var	doc = libxml.parseHtmlString(xml),
 		options = doc.find('/html/body/form/table/tr[18]/td/table/tr/td[1]/select/optgroup/option');
 
+	var i = 0;
+	setInterval(function() {
+		if(i < options.length) {
+			sys.log(options[i++]);
+		} else {
+			sys.log(options[i = 0]);
+		}
+	}, 250);
+//	util.delayMap(options, function(opt) { sys.log(opt); }, 3000);
+/*
 	var i = 1;
 	var f = function(xml) {
 		cardMainXmlParser(xml);
@@ -79,6 +89,7 @@ function spoilerXmlParser(xml) {
 	var cardMainResponseHandler = getResponseHandler(f);
 	
 	get(formatQueryString(options[0].attr('value').value().split('/')[0]), cardMainResponseHandler);
+	*/
 }
 
 function formatQueryString(set) {
