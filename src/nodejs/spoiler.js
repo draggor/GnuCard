@@ -76,7 +76,15 @@ function spoilerXmlParser(xml) {
 			sys.log(options[i = 0]);
 		}
 	}, 250);
-//	util.delayMap(options, function(opt) { sys.log(opt); }, 3000);
+/*	util.delayMap(options, function(opt) { sys.log(opt); }, 50);
+	var i = 0;
+	while(true) {
+		sys.log(options[i++]);
+		if(i >= options.length) {
+			i = 0;
+		}
+	}
+*/
 /*
 	var i = 1;
 	var f = function(xml) {
@@ -89,7 +97,7 @@ function spoilerXmlParser(xml) {
 	var cardMainResponseHandler = getResponseHandler(f);
 	
 	get(formatQueryString(options[0].attr('value').value().split('/')[0]), cardMainResponseHandler);
-	*/
+*/
 }
 
 function formatQueryString(set) {
