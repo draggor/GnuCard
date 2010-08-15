@@ -10,10 +10,6 @@ exports.getUniqueId = (function() {
 	};
 })();
 
-exports.getRandomCard = function() {
-	return {pic: ''};
-};
-
 exports.shuffle = function(deck) {
 	for(var i = 0; i < deck.length; i++) {
 		var j = Math.floor(Math.random() * deck.length) + 1;

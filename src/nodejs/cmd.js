@@ -1,18 +1,39 @@
-var game = require('./game');
-var util = require('./util');
+var	game = require('./game'),
+	sys = require('sys'),
+	util = require('./util');
 
 var COMMANDS = {};
 
 function calljs(client, func, args) {
-	client.send(prepJS(func, args));
+	var msg = prepJS(func, args);
+	sys.puts(msg);
+	client.send(msg);
 }
 
 function callalljs(client, func, args) {
-	client.broadcast(prepJS(func, args));
+	var msg = prepJS(func, args);
+	sys.puts(msg);
+	client.broadcast(msg);
 }
 
 function prepJS(funcName, message) {
-	return funcName + '("' + message + '");';
+	return funcName + '(' + prepArgs(message) + ');';
+}
+
+function prepArgs(args) {
+	var args = args.map(function(i) {
+		return '"' + i + '"';
+	});
+	if(args.length === 1) {
+		return args[0];
+	} else {
+		var toReturn = '';
+		for(var i = 0; i < args.length - 1; i++) {
+			toReturn += args[i] + ', ';
+		}
+		toReturn += args[args.length - 1];
+		return toReturn;
+	}
 }
 
 function runCmd(client, funcName, args) {
@@ -21,7 +42,7 @@ function runCmd(client, funcName, args) {
 	if(func) {
 		func(client, args);
 	} else {
-		calljs(client, 'notify', 'Function ' + funcName + ' not found!');
+		calljs(client, 'notify', ['Function ' + funcName + ' not found!']);
 	}
 }
 
@@ -45,51 +66,52 @@ COMMANDS.logon = function(client, args) {
 			game.clientsToPlayers[client] = p;
 			p.client = client;
 		} else {
-			calljs(client, 'notify', "WRONG PASS!");
+			calljs(client, 'notify', ["WRONG PASS!"]);
 		}
 	} else {
 		var player = new game.Player(args.client, args.name, args.pass);
 		game.clientsToPlayers[args.client] = player;
 		game.namesToPlayers[args.name] = player;
-		callalljs(client, 'notify', args.name + ' logged on!');
+		callalljs(client, 'notify', [args.name + ' logged on!']);
 		runCmd(client, 'updateCards', args);
 	}
 };
 
 COMMANDS.updateCards = function(client, args) {
 	var player = game.clientsToPlayers[client];
-	for(card in game.cards) {
-		calljs(client, 'create_card', card.id, card.pic);
+	for(k in game.cards) {
+		var card = game.cards[k];
+		calljs(client, 'create_card', [card.id, card.pic]);
 		if(card.place === 'play') {
-			calljs(client, 'show_card', card.id);
+			calljs(client, 'show_card', [card.id]);
 		}
 		if(card.place === 'hand') {
 			if(card.owner === player.name) {
-				calljs(client, 'move_to_hand', card.id);
-				calljs(client, 'show_card', card.id);
+				calljs(client, 'move_to_hand', [card.id]);
+				calljs(client, 'show_card', [card.id]);
 			}
 		}
-		calljs(client, 'move_card', card.id, card.top, card.left);
+		calljs(client, 'move_card', [card.id, card.top, card.left]);
 		if(card.tapped) {
-			callalljs(client, 'toggle_tap', card.id);
+			callalljs(client, 'toggle_tap', [card.id]);
 		}
 	}
-	calljs(client, 'notify', "Cards Updated");
+	calljs(client, 'notify', ["Cards Updated"]);
 };
 
 COMMANDS.createCard = function(client, args) {
 	var	id = util.getUniqueId(),
-		c = new game.CardStub(id),
+		cs = new game.CardStub(id),
 		p = game.clientsToPlayers[client],
-		img = util.getRandomCard();
+		c = game.getRandomCard();
 	
-	c.pic = img.pic;
-	c.place = 'play';
-	c.owner = p.name;
-	game.cards[id] = c;
-
-	callalljs(client, 'create_card', id + ', ' +c.pic);
-	callalljs(client, 'show_card', id);
+	cs.pic = c.img;
+	cs.place = 'play';
+	cs.owner = p.name;
+	game.cards[id] = cs;
+	
+	callalljs(client, 'create_card', [id,  cs.pic]);
+	callalljs(client, 'show_card', [id]);
 };
 
 COMMANDS.moveCard = function(client, args) {
@@ -98,7 +120,7 @@ COMMANDS.moveCard = function(client, args) {
 	card.top = args.top;
 	card.left = args.left;
 
-	callalljs(client, 'move_card', args.id + ', ' + args.top + ', ' + args.left);
+	callalljs(client, 'move_card', [args.id, args.top, args.left]);
 };
 
 COMMANDS.disconnect = function(client, args) {
@@ -110,7 +132,7 @@ COMMANDS.toggleTap = function(client, args) {
 
 	card.tapped = !card.tapped;
 
-	callalljs(client, 'toggle_tap', args.id);
+	callalljs(client, 'toggle_tap', [args.id]);
 };
 
 COMMANDS.moveToHand = function(client, args) {
@@ -121,8 +143,8 @@ COMMANDS.moveToHand = function(client, args) {
 	card.tapped = false;
 	player.hand.push(card);
 
-	callalljs(client, 'hide_card', card.id);
-	calljs(player.client, 'move_to_hand', card.id);
+	callalljs(client, 'hide_card', [card.id]);
+	calljs(player.client, 'move_to_hand', [card.id]);
 };
 
 COMMANDS.moveToPlay = function(client, args) {
@@ -144,7 +166,7 @@ COMMANDS.moveToTopOfDeck = function(client, args) {
 	player.deck.unshift(card);
 	card.place = 'deck';
 	
-	callalljs(client, 'hide_card', card.id);
+	callalljs(client, 'hide_card', [card.id]);
 };
 
 COMMANDS.moveToBottomOfDeck = function(client, args) {
@@ -157,7 +179,7 @@ COMMANDS.moveToBottomOfDeck = function(client, args) {
 	player.deck.push(card);
 	card.place = 'deck';
 
-	callalljs(client, 'hide_card', card.id);
+	callalljs(client, 'hide_card', [card.id]);
 };
 
 COMMANDS.getDeckList = function(client, args) {
@@ -185,7 +207,7 @@ COMMANDS.selectDeck = function(client, args) {
 		deck = createAndShuffleDeck(player.name, args.deck);
 	
 	player.deck = deck;
-	callalljs(client, 'notify', args.deck + ' selected!');	
+	callalljs(client, 'notify', [args.deck + ' selected!']);	
 };
 
 COMMANDS.draw = function(client, args) {
@@ -195,10 +217,10 @@ COMMANDS.draw = function(client, args) {
 	for(var i = 0; i < parseInt(args.num); i++) {
 		var card = deck.shift();
 		player.hand.push(card);
-		calljs(client, 'move_card', card.id + ', ' + (456 + i * 12) + ', ' + (12 + i * 12));
-		calljs(client, 'move_to_hand', card.id);
+		calljs(client, 'move_card', [card.id, (456 + i * 12), (12 + i * 12)]);
+		calljs(client, 'move_to_hand', [card.id]);
 	}
-	callalljs(client, 'notify', player.name + ' drew ' + args.num + (args.num === 1 ? ' card.' : ' cards.'));
+	callalljs(client, 'notify', [player.name + ' drew ' + args.num + (args.num === 1 ? ' card.' : ' cards.')]);
 };
 
 COMMANDS.shuffle = function(client, args) {
@@ -206,7 +228,7 @@ COMMANDS.shuffle = function(client, args) {
 
 	util.shuffle(player.deck);
 
-	callalljs(client, 'notify', player.name + ' shuffled its deck.');
+	callalljs(client, 'notify', [player.name + ' shuffled its deck.']);
 };
 
 COMMANDS.viewLibrary = function(client, args) {
@@ -214,5 +236,5 @@ COMMANDS.viewLibrary = function(client, args) {
 
 	/** THIS NEEDS JSON PARAM SENDING!!! **/
 
-	callalljs(client, 'notify', player.name + ' is looking at its library.');
+	callalljs(client, 'notify', [player.name + ' is looking at its library.']);
 };

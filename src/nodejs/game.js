@@ -3,11 +3,14 @@ var clientsToPlayers = {};
 var decks = {};
 var cards = {};
 var db = {};
+var dba = [];
 
 exports.namesToPlayers = namesToPlayers;
 exports.clientsToPlayers = clientsToPlayers;
 exports.decks = decks;
 exports.cards = cards;
+exports.db = db;
+exports.dba = dba;
 
 function Player(client, name, pass) {
 	this.client = client;
@@ -47,6 +50,11 @@ Card.prototype.set = '';
 Card.prototype.rarity = '';
 Card.prototype.cc = '';
 Card.prototype.name = '';
+Card.prototype.types = [];
+Card.prototype.supertype = '';
+Card.prototype.subtypes = [];
+Card.prototype.power = '';
+Card.prototype.toughness = '';
 
 function Deck(name, list) {
 	this.name = name;
@@ -63,3 +71,7 @@ function reset() {
 }
 
 exports.reset = reset;
+
+exports.getRandomCard = function() {
+	return exports.db[exports.dba[Math.floor(Math.random() * exports.dba.length)]];
+};

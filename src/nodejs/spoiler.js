@@ -1,11 +1,8 @@
-var	libxml = require('libxmljs'),
+var	xml2js = require('xml2js'),
 	sys = require('sys'),
-	util = require('./util'),
+	fs = require('fs'),
 	game = require('./game'),
-	repl = require('repl'),
 	http = require('http');
-
-var DB = {};
 
 function getResponseHandler(xmlParser) {
 	return function(response) {
@@ -25,8 +22,12 @@ function get(path, responseHandler) {
 	var req = http.createClient(80, 'magiccards.info').request('GET', path, {'host': 'magiccards.info'});
 	req.on('response', responseHandler);
 	req.end();
+	return req;
 }
 
+/*
+ * FIX THIS
+ */
 function cardTextXmlParser(xml) {
 	var doc = libxml.parseHtmlString(xml);
 	var text = doc.get('/html/body/table[3]/tr/td[2]/p[2]/b').toString();
@@ -34,70 +35,97 @@ function cardTextXmlParser(xml) {
 	console.log(text);
 }
 
-function cardDetailSetter(doc) {
-	var	imgNname = doc.get('td/a'),
-		typesNpt = doc.get('td[2]'),
-		cc = doc.get('td[3]'),
-		rarity = doc.get('td[4]'),
-		artist = doc.get('td[5]'),
-		set = doc.get('td[6]');
-
+function cardDetailSetter(cj) {
 	var c = new game.Card();
 
-	c.img = imgNname.attr('href').value();
-	c.name = imgNname.text();
-	c.rarity = rarity.text();
-	c.artist = artist.text();
-	c.set = set.text();
-	c.cc = cc.text();
+	c.img = cj.td[0].a['@'].href;
+	c.name = cj.td[0].a['#'];
+	c.rarity = cj.td[3];
+	c.artist = cj.td[4];
+	c.set = cj.td[5].img['#'];
+	c.cc = cj.td[2];
+
+	var s = cj.td[1];
+	s = s.split(' - ');
+
+	if(s.length === 1) {
+		c.types = s[0];
+	} else {
+		var types = s[0];
+		var other = s[1];
+
+		other = other.split(' ');
+		if(other.length === 1) {
+			c.subtypes = other;
+		} else {
+			var pt = other.pop();
+			pt = pt.split('/');
+			if(pt.length === 1) {
+				c.loyalty = pt[0];
+			} else {
+				c.power = pt[0];
+				c.toughness = pt[1];
+			}
+			c.subtypes = other;
+			c.types = types;
+		}
+	}
 
 	return c;
 }
 
 function cardMainXmlParser(xml) {
-	var 	doc = libxml.parseHtmlString(xml),
-		trs = doc.find('/html/body/table[3]/tr');
-	
-	for(var i = 1; i < trs.length; i++) {
-		var c = cardDetailSetter(trs[i]);
-		DB[c.img] = c;
-	}
+	var parser = new xml2js.Parser();
+	parser.addListener('end', function(result) {
+		var cardjson = result.body.hr.br.br.table.tr;
+
+		if(cardjson) {
+			cardjson.shift();
+
+			var cards = cardjson.map(cardDetailSetter);
+
+			for(i in cards) {
+				game.db[cards[i]['img']] = cards[i];
+				game.dba.push(cards[i].img);
+			}
+			sys.puts('Done');
+		} else {
+			sys.puts('Error: Couldn\'t parse!');
+		}
+	});
+
+	parser.parseString(xml);
 }
 
 function spoilerXmlParser(xml) {
-	var	doc = libxml.parseHtmlString(xml),
-		options = doc.find('/html/body/form/table/tr[18]/td/table/tr/td[1]/select/optgroup/option');
-
-	var i = 0;
-	setInterval(function() {
-		if(i < options.length) {
-			sys.log(options[i++]);
-		} else {
-			sys.log(options[i = 0]);
+	var	parser = new xml2js.Parser();
+	parser.addListener('end', function(result) {
+		var setjson = result.body.hr.form.table.tr[17].td.table.tr.td[0].br.select.optgroup;
+		var sets = [];
+		for(i in setjson) {
+			if(Array.isArray(setjson[i].option)) {
+				for(k in setjson[i].option) {
+					sets.push(setjson[i].option[k]['@'].value.split('/')[0]);
+				}
+			} else {
+				sets.push(setjson[i].option['@'].value.split('/')[0]);
+			}
 		}
-	}, 250);
-/*	util.delayMap(options, function(opt) { sys.log(opt); }, 50);
-	var i = 0;
-	while(true) {
-		sys.log(options[i++]);
-		if(i >= options.length) {
-			i = 0;
-		}
-	}
-*/
-/*
-	var i = 1;
-	var f = function(xml) {
-		cardMainXmlParser(xml);
-		if(i < options.length) {
-			get(formatQueryString(options[i++].attr('value').value().split('/')[0]), cardMainResponseHandler);
-		}
-	};
-
-	var cardMainResponseHandler = getResponseHandler(f);
 	
-	get(formatQueryString(options[0].attr('value').value().split('/')[0]), cardMainResponseHandler);
-*/
+		var i = 1;
+		var f = function(xml) {
+			sys.log('Parsing set: ' + sets[i]);
+			cardMainXmlParser(xml);
+			if(i < sets.length) {
+				setTimeout(get, 1000, formatQueryString(sets[i++]), cardMainResponseHandler);
+			}
+		};
+	
+		var cardMainResponseHandler = getResponseHandler(f);
+		get(formatQueryString(sets[0]), cardMainResponseHandler);
+	});
+
+	parser.parseString(xml);
 }
 
 function formatQueryString(set) {
@@ -110,9 +138,22 @@ var cardMainResponseHandler = getResponseHandler(cardMainXmlParser);
 
 var spoilerResponseHandler = getResponseHandler(spoilerXmlParser);
 
-get('/search.html', spoilerResponseHandler);
-//get(formatQueryString('zen'), cardMainResponseHandler);
+exports.getSpoiler = function() {
+	get('/search.html', spoilerResponseHandler);
+};
 
-var r = repl.start();
-r.context.DB = DB;
-r.context.game = game;
+exports.saveSpoiler = function() {
+	fs.writeFile('./spoiler_map.js', JSON.stringify(game.db));
+	fs.writeFile('./spoiler_array.js', JSON.stringify(game.dba));
+};
+
+exports.loadSpoiler = function() {
+	fs.readFile('./spoiler_map.js', function(err, data) {
+		game.db = JSON.parse(data);
+		sys.puts('Done loading spoiler_map.js');
+	});
+	fs.readFile('./spoiler_array.js', function(err, data) {
+		game.dba = JSON.parse(data);
+		sys.puts('Done loading spoiler_array.js');
+	});
+};

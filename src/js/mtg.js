@@ -4,6 +4,7 @@ function init() {
 	socket = new io.Socket('127.0.0.1', {rememberTransport: false, port:9000});
 	socket.connect();
 	socket.addEvent('message', function(data) {
+	      alert(data);
 	      eval(data);
 	});
 	
@@ -195,6 +196,7 @@ function remove_image() {
 }
 
 function create_card(id, img) {
+	alert('created ' + id + ' ' + img);
 	var card = $("<div>").addClass("card cardHidden cardPlay cardUntapped").attr("ID", id).attr("pic", img).css({top: 0, left:0}).html("C");
 	$(card).draggable({ grid: [12, 12], 
 	                    zIndex: 9999,
@@ -212,24 +214,24 @@ function create_card(id, img) {
 	$(card).contextMenu([
 		{"Move to Hand":function(menuItem,menu) {
 			var id = $(this).attr("ID");
-			send_message("move_to_hand " + id);
-			send_message("move_card " + id + " 468 24");
+			send_message("moveToHand " + id);
+			send_message("moveCard " + id + " 468 24");
 		}},
 		{"Move to TOP of Deck":function(menuItem,menu) {
 			var id = $(this).attr("ID");
-			send_message("move_to_top_of_deck " + id);
+			send_message("moveToTopOfDeck " + id);
 		}},
 		{"Move to BOTTOM of Deck":function(menuItem,menu) {
 			var id = $(this).attr("ID");
-			send_message("move_to_bottom_of_deck " + id);
+			send_message("moveToBottomOfDeck " + id);
 		}},
 		{"Move to Graveyard":function(menuItem,menu) {
 			var id = $(this).attr("ID");
-			send_message("move_to_graveyard " + id);
+			send_message("moveToGraveyard " + id);
 		}},
 		{"Remove From Game":function(menuItem,menu) {
 			var id = $(this).attr("ID");
-			send_message("remove_from_game " + id);
+			send_message("removeFromGame " + id);
 		}},
 		$.contextMenu.separator,
 		{"Bees":function(menuItem,menu) { alert("OH GOD NOT THE BEES!"); }}
@@ -250,7 +252,7 @@ function pxToInt(px) {
 }
 
 function ev_move_card(event, ui) {
-	send_message(['move_card', {id: $(this).attr("ID"), top: ui.offset.top, left: ui.offset.left}]);
+	send_message(['moveCard', {id: $(this).attr("ID"), top: ui.offset.top, left: ui.offset.left}]);
 }
 
 function move_card(id, td, ld) {
