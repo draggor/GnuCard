@@ -1,3 +1,7 @@
+# Files
+spoiler_array.js
+spoiler_map.js
+
 # Filetypes
 *.swp
 .*.swp
@@ -5,4 +9,3 @@
 # Paths
 /src/js/Socket.IO
 /lib/Socket.IO-node
-
