@@ -1,11 +1,11 @@
 var socket;
+var COMMANDS = {};
 
 function init() {
 	socket = new io.Socket('127.0.0.1', {rememberTransport: false, port:9000});
 	socket.connect();
 	socket.addEvent('message', function(data) {
-	      alert(data);
-	      eval(data);
+		runCmd(JSON.parse(data));
 	});
 	
 	$("#library").hide().contextMenu([
@@ -40,9 +40,23 @@ function init() {
         });
 }
 
-function notify(msg) {
-	$("#msgs").text(msg);
+function runCmd(json) {
+	var func = COMMANDS[json[0]];
+
+	if(func) {
+		func(json[1]);
+	} else {
+		COMMANDS.notify({message: 'Function ' + funcName + ' not found!'});
+	}
 }
+
+
+
+function notify(json) {
+	$("#msgs").text(json.message);
+}
+
+COMMANDS.notify = notify;
 
 function send_message(msg) {
 	socket.send(JSON.stringify(msg));
@@ -61,7 +75,8 @@ function ev_get_deck_list(event, ui) {
 	send_message(['getDeckList', {}]);
 }
 
-function deck_selector(list) {
+function deck_selector(json) {
+	var list = json.list;
 	var popups = $("#popups");
 	var bg = $("<div>").css({"width": "100%",
 	                         "height": "100%",
@@ -92,7 +107,10 @@ function deck_selector(list) {
 	$("<input type='button'>").attr("value", "Select Deck").bind("click", selfn).appendTo(form);
 }
 
-function view_library(list) {
+COMMANDS.deck_selector = deck_selector;
+
+function view_library(json) {
+	var list = json.list;
 	var popups = $("#popups");
 	var bg = $("<div>").css({"width": "100%",
 	                         "height": "100%",
@@ -118,6 +136,8 @@ function view_library(list) {
 	$("<input type='button'>").attr("value", "Close").bind("click", selfn).appendTo(fg);
 }
 
+COMMANDS.view_library = view_library;
+
 
 function ev_move_to_play(event, ui) {
 	if($(ui.draggable).hasClass("cardHand")) {
@@ -125,12 +145,14 @@ function ev_move_to_play(event, ui) {
 	}
 }
 
-function move_to_play(id) {
-	var card = "#" + id;
+function move_to_play(json) {
+	var card = "#" + json.id;
 	$(card).prependTo($("#playarea"));
 	$(card).removeClass("cardHidden cardHand");
 	$(card).addClass("cardPlay cardUntapped");
 }
+
+COMMANDS.move_to_play = move_to_play;
 
 function ev_move_to_hand(event, ui) {
 	if($(ui.draggable).hasClass("cardPlay")) {
@@ -138,28 +160,34 @@ function ev_move_to_hand(event, ui) {
 	}
 }
 
-function move_to_hand(id) {
-	var card = "#" + id;
+function move_to_hand(json) {
+	var card = "#" + json.id;
 	$(card).appendTo($("#hand"));
 	$(card).removeClass("cardHidden cardPlay");
 	$(card).addClass("cardHand");
 }
 
-function hide_card(id) {
-	var card = "#" + id;
+COMMANDS.move_to_hand = move_to_hand;
+
+function hide_card(json) {
+	var card = "#" + json.id;
 	$(card).removeClass("cardPlay cardUntapped cardTapped");
 	$(card).addClass("cardHidden");
 }
+
+COMMANDS.hide_card = hide_card;
 
 function ev_toggle_tap(event) {
 	send_message(['toggleTap', {id: $(this).attr("ID")}]);
 }
 
-function toggle_tap(id) {
-	var card = "#" + id;
+function toggle_tap(json) {
+	var card = "#" + json.id;
 	$(card).toggleClass("cardUntapped");
 	$(card).toggleClass("cardTapped");
 }
+
+COMMANDS.toggle_tap = toggle_tap;
 
 function ev_logon(event) {
 	send_message(['logon', {name: $("#logon_name").val(), pass: $("#logon_pass").val()}]);
@@ -174,7 +202,7 @@ function ev_logon(event) {
 }
 
 function update_cards() {
-	send_message("updateCards");
+	send_message(['updateCards', {}]);
 }
 
 function ev_create_card(event) {
@@ -187,7 +215,7 @@ var SRC_dracolair = "http://mtgimg.dracolair.net/scans/";
 var SRC_local = "file///home/draggor/Programming/compojure/magiccards.info/scans/";
 
 function show_image(img) {
-	var cardimg = $("<img>").attr("src", SRC_dracolair + img).attr("ID", "cardimg");
+	var cardimg = $("<img>").attr("src", SRC_magiccards_info + img).attr("ID", "cardimg");
 	$("#cardinfo").html(cardimg);
 }
 
@@ -195,8 +223,8 @@ function remove_image() {
 	$("#cardinfo").children().remove();
 }
 
-function create_card(id, img) {
-	alert('created ' + id + ' ' + img);
+function create_card(json) {
+	var id = json.id, img = json.pic;
 	var card = $("<div>").addClass("card cardHidden cardPlay cardUntapped").attr("ID", id).attr("pic", img).css({top: 0, left:0}).html("C");
 	$(card).draggable({ grid: [12, 12], 
 	                    zIndex: 9999,
@@ -239,6 +267,8 @@ function create_card(id, img) {
 	return card;
 }
 
+COMMANDS.create_card = create_card;
+
 function reverseStr(str) {
 	sp = str.split("");
 	spt = sp.reverse();
@@ -255,12 +285,12 @@ function ev_move_card(event, ui) {
 	send_message(['moveCard', {id: $(this).attr("ID"), top: ui.offset.top, left: ui.offset.left}]);
 }
 
-function move_card(id, td, ld) {
-	var card = $("#" + id);
+function move_card(json) {
+	var card = $("#" + json.id);
 	var to = pxToInt($(card).css("top"));
 	var lo = pxToInt($(card).css("left"));
-	var tm = parseInt(td) - to;
-	var lm = parseInt(ld) - lo;
+	var tm = parseInt(json.top) - to;
+	var lm = parseInt(json.left) - lo;
 	if(tm > 0)
 		var tpx = "+=" + tm;
 	else
@@ -274,19 +304,25 @@ function move_card(id, td, ld) {
 		        100);
 }
 
-function show_card(id) {
-	var card = $("#" + id);
+COMMANDS.move_card = move_card;
+
+function show_card(json) {
+	var card = $("#" + json.id);
 	if ($(card).hasClass("cardHidden")) {
 		$(card).removeClass("cardHidden");
 	}
 	return card;
 }
 
-function hide_card(id) {
-	var card = $("#" + id);
+COMMANDS.show_card = show_card;
+
+function hide_card(json) {
+	var card = $("#" + jsonid);
 	if ($(card).hasClass("cardHidden")) {
 	} else {
 		$(card).addClass("cardHidden");
 	}
 	return card;
 }
+
+COMMANDS.hide_card = hide_card;

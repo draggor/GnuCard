@@ -4,36 +4,21 @@ var	game = require('./game'),
 
 var COMMANDS = {};
 
-function calljs(client, func, args) {
-	var msg = prepJS(func, args);
-	sys.puts(msg);
+function calljs(client, msg) {
+	var msg = JSON.stringify(msg);
+	sys.log(msg);
 	client.send(msg);
 }
 
-function callalljs(client, func, args) {
-	var msg = prepJS(func, args);
-	sys.puts(msg);
-	client.broadcast(msg);
-}
-
-function prepJS(funcName, message) {
-	return funcName + '(' + prepArgs(message) + ');';
-}
-
-function prepArgs(args) {
-	var args = args.map(function(i) {
-		return '"' + i + '"';
-	});
-	if(args.length === 1) {
-		return args[0];
-	} else {
-		var toReturn = '';
-		for(var i = 0; i < args.length - 1; i++) {
-			toReturn += args[i] + ', ';
-		}
-		toReturn += args[args.length - 1];
-		return toReturn;
+function callalljs(client, msg) {
+	var msg = JSON.stringify(msg);
+	sys.log(msg);
+	
+	for(c in game.clientsToPlayers) {
+		game.clientsToPlayers[c].client.send(msg);
 	}
+
+//	client.broadcast(msg);
 }
 
 function runCmd(client, funcName, args) {
@@ -42,7 +27,7 @@ function runCmd(client, funcName, args) {
 	if(func) {
 		func(client, args);
 	} else {
-		calljs(client, 'notify', ['Function ' + funcName + ' not found!']);
+		calljs(client, ['notify', {message: 'Function ' + funcName + ' not found!'}]);
 	}
 }
 
@@ -66,13 +51,13 @@ COMMANDS.logon = function(client, args) {
 			game.clientsToPlayers[client] = p;
 			p.client = client;
 		} else {
-			calljs(client, 'notify', ["WRONG PASS!"]);
+			calljs(client, ['notify', {message: "WRONG PASS!"}]);
 		}
 	} else {
 		var player = new game.Player(args.client, args.name, args.pass);
 		game.clientsToPlayers[args.client] = player;
 		game.namesToPlayers[args.name] = player;
-		callalljs(client, 'notify', [args.name + ' logged on!']);
+		callalljs(client, ['notify', {message: args.name + ' logged on!'}]);
 		runCmd(client, 'updateCards', args);
 	}
 };
@@ -81,22 +66,22 @@ COMMANDS.updateCards = function(client, args) {
 	var player = game.clientsToPlayers[client];
 	for(k in game.cards) {
 		var card = game.cards[k];
-		calljs(client, 'create_card', [card.id, card.pic]);
+		calljs(client, ['create_card', {id: card.id, pic: card.pic}]);
 		if(card.place === 'play') {
-			calljs(client, 'show_card', [card.id]);
+			calljs(client, ['show_card', {id: card.id}]);
 		}
 		if(card.place === 'hand') {
 			if(card.owner === player.name) {
-				calljs(client, 'move_to_hand', [card.id]);
-				calljs(client, 'show_card', [card.id]);
+				calljs(client, ['move_to_hand', {id: card.id}]);
+				calljs(client, ['show_card', {id: card.id}]);
 			}
 		}
-		calljs(client, 'move_card', [card.id, card.top, card.left]);
+		calljs(client, ['move_card', {id: card.id, top: card.top, left: card.left}]);
 		if(card.tapped) {
-			callalljs(client, 'toggle_tap', [card.id]);
+			callalljs(client, ['toggle_tap', {id: card.id}]);
 		}
 	}
-	calljs(client, 'notify', ["Cards Updated"]);
+	calljs(client, ['notify', {message: "Cards Updated"}]);
 };
 
 COMMANDS.createCard = function(client, args) {
@@ -110,8 +95,8 @@ COMMANDS.createCard = function(client, args) {
 	cs.owner = p.name;
 	game.cards[id] = cs;
 	
-	callalljs(client, 'create_card', [id,  cs.pic]);
-	callalljs(client, 'show_card', [id]);
+	callalljs(client, ['create_card', {id: id,  pic: cs.pic}]);
+	callalljs(client, ['show_card', {id: id}]);
 };
 
 COMMANDS.moveCard = function(client, args) {
@@ -120,7 +105,7 @@ COMMANDS.moveCard = function(client, args) {
 	card.top = args.top;
 	card.left = args.left;
 
-	callalljs(client, 'move_card', [args.id, args.top, args.left]);
+	callalljs(client, ['move_card', {id: args.id, top: args.top, left: args.left}]);
 };
 
 COMMANDS.disconnect = function(client, args) {
@@ -132,7 +117,7 @@ COMMANDS.toggleTap = function(client, args) {
 
 	card.tapped = !card.tapped;
 
-	callalljs(client, 'toggle_tap', [args.id]);
+	callalljs(client, ['toggle_tap', {id: args.id}]);
 };
 
 COMMANDS.moveToHand = function(client, args) {
@@ -143,8 +128,8 @@ COMMANDS.moveToHand = function(client, args) {
 	card.tapped = false;
 	player.hand.push(card);
 
-	callalljs(client, 'hide_card', [card.id]);
-	calljs(player.client, 'move_to_hand', [card.id]);
+	callalljs(client, ['hide_card', {id: card.id}]);
+	calljs(player.client, ['move_to_hand', {id: card.id}]);
 };
 
 COMMANDS.moveToPlay = function(client, args) {
@@ -166,7 +151,7 @@ COMMANDS.moveToTopOfDeck = function(client, args) {
 	player.deck.unshift(card);
 	card.place = 'deck';
 	
-	callalljs(client, 'hide_card', [card.id]);
+	callalljs(client, ['hide_card', {id: card.id}]);
 };
 
 COMMANDS.moveToBottomOfDeck = function(client, args) {
@@ -179,11 +164,11 @@ COMMANDS.moveToBottomOfDeck = function(client, args) {
 	player.deck.push(card);
 	card.place = 'deck';
 
-	callalljs(client, 'hide_card', [card.id]);
+	callalljs(client, ['hide_card', {id: card.id}]);
 };
 
 COMMANDS.getDeckList = function(client, args) {
-	calljs(client, 'deck_selector', Object.keys(game.decks));
+	calljs(client, ['deck_selector', {list: Object.keys(game.decks)}]);
 };
 
 function createAndShuffleDeck(owner, deckName) {
@@ -207,7 +192,7 @@ COMMANDS.selectDeck = function(client, args) {
 		deck = createAndShuffleDeck(player.name, args.deck);
 	
 	player.deck = deck;
-	callalljs(client, 'notify', [args.deck + ' selected!']);	
+	callalljs(client, ['notify', {message: args.deck + ' selected!'}]);	
 };
 
 COMMANDS.draw = function(client, args) {
@@ -217,10 +202,10 @@ COMMANDS.draw = function(client, args) {
 	for(var i = 0; i < parseInt(args.num); i++) {
 		var card = deck.shift();
 		player.hand.push(card);
-		calljs(client, 'move_card', [card.id, (456 + i * 12), (12 + i * 12)]);
-		calljs(client, 'move_to_hand', [card.id]);
+		calljs(client, ['move_card', {id: card.id, top: (456 + i * 12), left: (12 + i * 12)}]);
+		calljs(client, ['move_to_hand', {id: card.id}]);
 	}
-	callalljs(client, 'notify', [player.name + ' drew ' + args.num + (args.num === 1 ? ' card.' : ' cards.')]);
+	callalljs(client, ['notify', {message: player.name + ' drew ' + args.num + (args.num === 1 ? ' card.' : ' cards.')}]);
 };
 
 COMMANDS.shuffle = function(client, args) {
@@ -228,7 +213,7 @@ COMMANDS.shuffle = function(client, args) {
 
 	util.shuffle(player.deck);
 
-	callalljs(client, 'notify', [player.name + ' shuffled its deck.']);
+	callalljs(client, ['notify', {message: player.name + ' shuffled its deck.'}]);
 };
 
 COMMANDS.viewLibrary = function(client, args) {
@@ -236,5 +221,5 @@ COMMANDS.viewLibrary = function(client, args) {
 
 	/** THIS NEEDS JSON PARAM SENDING!!! **/
 
-	callalljs(client, 'notify', [player.name + ' is looking at its library.']);
+	callalljs(client, ['notify', {message: player.name + ' is looking at its library.'}]);
 };
