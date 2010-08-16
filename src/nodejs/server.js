@@ -16,7 +16,7 @@ var HEAD_INFO = {
 	css: {encoding: 'utf8', contentType: 'text/css'},
 	js: {encoding: 'utf8', contentType: 'text/javascript'},
 	swf: {encoding: 'binary', contentType: 'application/x-shockwave-flash'}
-}
+};
 
 var index = fs.readFileSync(SRC.html + "index.html");
 
@@ -29,7 +29,6 @@ var server = http.createServer(function(req, res) {
 		res.writeHead(200, {'Content-Type': 'text/html'});
 		res.write(index);
 		res.end();
-//		console.log('Request Done: ' + path);
 	} else if(pieces[2] != null) {
 		dispatchURL(path, pieces, res);
 	} else {
@@ -39,36 +38,19 @@ var server = http.createServer(function(req, res) {
 });
 
 function dispatchURL(path, pieces, res) {
-	var head = HEAD_INFO[path.split('.').pop()];
-	switch(pieces[1]) {
-		case 'css':
-			res.writeHead(200, {'Content-Type': head.contentType});
-			fs.readFile(SRC.css + path.substring(4), head.encoding, function(err, data) {
-				if(err) {
-					throw err;
-				} else {
-					res.write(data, head.encoding);
-					res.end();
-//					console.log('Request Done: ' + path);
-				}
-			});
-			break;
-		case 'js':
-			res.writeHead(200, {'Content-Type': head.contentType});
-			fs.readFile(SRC.js + path.substring(3), head.encoding, function(err, data) {
-				if(err) {
-					throw err;
-				} else {
-					res.write(data, head.encoding);
-					res.end();
-//					console.log('Request Done: ' + path);
-				}
-			});
-			break;
-		default:
+	var	head = HEAD_INFO[path.split('.').pop()],
+		type = pieces[1];
+
+	res.writeHead(200, {'Content-Type': head.contentType});
+	fs.readFile('./src' + path, head.encoding, function(err, data) {
+		if(err) {
 			res.end();
-			break;
-	}
+			throw err;
+		} else {
+			res.write(data, head.encoding);
+			res.end();
+		}
+	});
 }
 
 exports.startServer = function(port) {
