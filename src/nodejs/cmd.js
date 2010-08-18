@@ -217,9 +217,8 @@ COMMANDS.shuffle = function(client, args) {
 };
 
 COMMANDS.viewLibrary = function(client, args) {
-	var player = game.clientsToPlayers[client];
+	var	player = game.clientsToPlayers[client];
 
-	/** THIS NEEDS JSON PARAM SENDING!!! **/
-
+	calljs(client, ['view_library', {deck: player.deck}]);
 	callalljs(client, ['notify', {message: player.name + ' is looking at its library.'}]);
 };

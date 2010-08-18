@@ -16,45 +16,43 @@ function Player(client, name, pass) {
 	this.client = client;
 	this.name = name;
 	this.pass = pass;
-}
-
-Player.prototype.zones = {
-	deck: [],
-	hand: [],
-	grave: [],
-	rfg: [],
-	play: [],
+	this.zones = {
+		deck: [],
+		hand: [],
+		grave: [],
+		rfg: [],
+		play: [],
+	};
 };
 
 exports.Player = Player;
 
 function CardStub(id) {
 	this.id = id;
+	this.top = 0;
+	this.left = 0;
+	this.place = 'hidden';
+	this.tapped = false;
+	this.owner = '';
+	this.controller = '';
+	this.pic = '';
 }
-
-CardStub.prototype.top = 0;
-CardStub.prototype.left = 0;
-CardStub.prototype.place = 'hidden';
-CardStub.prototype.tapped = false;
-CardStub.prototype.owner = '';
-CardStub.prototype.controller = '';
-CardStub.prototype.pic = '';
 
 exports.CardStub = CardStub;
 
-var Card = exports.Card = function() {};
-
-Card.prototype.img = '';
-Card.prototype.artist = '';
-Card.prototype.set = '';
-Card.prototype.rarity = '';
-Card.prototype.cc = '';
-Card.prototype.name = '';
-Card.prototype.types = [];
-Card.prototype.supertype = '';
-Card.prototype.subtypes = [];
-Card.prototype.power = '';
-Card.prototype.toughness = '';
+var Card = exports.Card = function() {
+	this.img = '';
+	this.artist = '';
+	this.set = '';
+	this.rarity = '';
+	this.cc = '';
+	this.name = '';
+	this.types = [];
+	this.supertype = '';
+	this.subtypes = [];
+	this.power = '';
+	this.toughness = '';
+};
 
 function Deck(name, list) {
 	this.name = name;

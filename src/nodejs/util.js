@@ -15,7 +15,7 @@ exports.shuffle = function(deck) {
 		var j = Math.floor(Math.random() * deck.length) + 1;
 		var tempi = deck[i];
 		deck[i] = deck[j];
-		deck[j] = deck[i];
+		deck[j] = tempi;
 	}
 	return deck;
 };
