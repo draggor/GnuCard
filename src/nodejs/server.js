@@ -2,6 +2,8 @@ var	net = require('net'),
 	http = require('http'),
 	url = require('url'),
 	fs = require('fs'),
+	sys = require('sys'),
+	formidable = require('formidable'),
 	io = require('../../lib/Socket.IO-node/'),
 	cmd = require('./cmd');
 
@@ -29,6 +31,12 @@ var server = http.createServer(function(req, res) {
 		res.writeHead(200, {'Content-Type': 'text/html'});
 		res.write(index);
 		res.end();
+	} else if(path === '/upload') {
+		handleUpload(req, res);
+	} else if(path === '/upload.html') {
+		res.writeHead(200, {'Content-Type': 'text/html'});
+		res.write(fs.readFileSync(SRC.html + 'upload.html'));
+		res.end();
 	} else if(pieces[2] != null) {
 		dispatchURL(path, pieces, res);
 	} else {
@@ -36,6 +44,30 @@ var server = http.createServer(function(req, res) {
 		console.log('Request null: ' + path);
 	}
 });
+
+function handleUpload(req, res) {
+	var	form = new formidable.IncomingForm(),
+		deck;
+
+	form.uploadDir = './upload/';
+
+	form.addListener('file', function(field, file) {
+		deck = file;
+	});
+	form.addListener('end', function() {
+		res.writeHead(200, {'content-type': 'text/html'});
+		res.write('<h1>Deck Upload\'d</h1>');
+		res.end();
+		parseDeck(deck);
+	});
+	form.parse(req);
+}
+
+function parseDeck(deck) {
+	/* TODO: Write the parser, add to game.decks!
+	 */
+	sys.log(sys.inspect(deck));
+}
 
 function dispatchURL(path, pieces, res) {
 	var	head = HEAD_INFO[path.split('.').pop()],

@@ -123,10 +123,10 @@ COMMANDS.toggleTap = function(client, args) {
 COMMANDS.moveToHand = function(client, args) {
 	var 	card = game.cards[args.id],
 		player = game.namesToPlayers[card.owner];
-	
+
 	card.place = 'hand';
 	card.tapped = false;
-	player.hand.push(card);
+	player.zones.hand.push(card);
 
 	callalljs(client, ['hide_card', {id: card.id}]);
 	calljs(player.client, ['move_to_hand', {id: card.id}]);
@@ -135,20 +135,21 @@ COMMANDS.moveToHand = function(client, args) {
 COMMANDS.moveToPlay = function(client, args) {
 	var	card = game.cards[args.id],
 		player = game.clientsToPlayers[client],
-		index = player.hand.indexOf(card);
+		index = player.zones.hand.indexOf(card);
 	
 	card.place = 'play';
-	delete player.hand[index];
+	delete player.zones.hand[index];
+	calljs(client, ['move_to_play', {id: card.id}]);
 };
 
 COMMANDS.moveToTopOfDeck = function(client, args) {
 	var	card = game.cards[args.id],
 		player = game.namesToPlayers[card.owner];
 	
-	player.hand = player.hand.filter(function(e) {
+	player.zones.hand = player.zones.hand.filter(function(e) {
 		return e != card;
 	});
-	player.deck.unshift(card);
+	player.zones.deck.unshift(card);
 	card.place = 'deck';
 	
 	callalljs(client, ['hide_card', {id: card.id}]);
@@ -158,10 +159,10 @@ COMMANDS.moveToBottomOfDeck = function(client, args) {
 	var	card = game.cards[args.id],
 		player = game.namesToPlayers[card.owner];
 	
-	player.hand = player.hand.filter(function(e) {
+	player.zones.hand = player.zones.hand.filter(function(e) {
 		return e != card;
 	});
-	player.deck.push(card);
+	player.zones.deck.push(card);
 	card.place = 'deck';
 
 	callalljs(client, ['hide_card', {id: card.id}]);
@@ -191,17 +192,17 @@ COMMANDS.selectDeck = function(client, args) {
 	var	player = game.clientsToPlayers[client],
 		deck = createAndShuffleDeck(player.name, args.deck);
 	
-	player.deck = deck;
+	player.zones.deck = deck;
 	callalljs(client, ['notify', {message: args.deck + ' selected!'}]);	
 };
 
 COMMANDS.draw = function(client, args) {
 	var	player = game.clientsToPlayers[client],
-		deck = player.deck;
+		deck = player.zones.deck;
 	
 	for(var i = 0; i < parseInt(args.num); i++) {
 		var card = deck.shift();
-		player.hand.push(card);
+		player.zones.hand.push(card);
 		calljs(client, ['move_card', {id: card.id, top: (456 + i * 12), left: (12 + i * 12)}]);
 		calljs(client, ['move_to_hand', {id: card.id}]);
 	}
@@ -211,7 +212,7 @@ COMMANDS.draw = function(client, args) {
 COMMANDS.shuffle = function(client, args) {
 	var player = game.clientsToPlayers[client];
 
-	util.shuffle(player.deck);
+	util.shuffle(player.zones.deck);
 
 	callalljs(client, ['notify', {message: player.name + ' shuffled its deck.'}]);
 };
@@ -219,6 +220,6 @@ COMMANDS.shuffle = function(client, args) {
 COMMANDS.viewLibrary = function(client, args) {
 	var	player = game.clientsToPlayers[client];
 
-	calljs(client, ['view_library', {deck: player.deck}]);
+	calljs(client, ['view_library', {deck: player.zones.deck}]);
 	callalljs(client, ['notify', {message: player.name + ' is looking at its library.'}]);
 };
