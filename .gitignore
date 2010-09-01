@@ -9,3 +9,4 @@ spoiler_map.js
 # Paths
 /src/js/Socket.IO
 /lib/Socket.IO-node
+/upload
