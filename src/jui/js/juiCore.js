@@ -7,18 +7,18 @@ juiElement = {
 		if(!this.params.container){
 			this.container = new $('<div>',
 				{
-					class : 'juiElement'	
+					'class' : 'juiElement'	
 				});
 		}else{
 			this.container = this.params.container; 
 		}
 		
 		this.container.css({
-			position : 'absolute',
-			top : 0,
-			left : 0
-		})
-		.attr('id', this.juiId);
+				position : 'absolute',
+				top : 0,
+				left : 0
+			})
+			.attr('id', this.juiId);
 		
 		return this;
 	},

@@ -3,16 +3,13 @@ function juiWindow(params){
 	var defaults = {
 			windowWidth : 300,
 			windowHandleHeight : 35,
-			windowPaneHeight : 300,
-		},
-		juiId;
+			windowPaneHeight : 300
+		};
 	
 	this.init(params);
 	
-	juiId = this.juiId;
-	
 	this.windowHandle = $('<div>', { 
-			class : 'window handle'
+			'class' : 'window handle'
 		})
 		.css({
 			position : 'absolute',
@@ -23,7 +20,7 @@ function juiWindow(params){
 		});
 		
 	this.windowPane = $('<div>', { 
-			class : 'window pane'
+			'class' : 'window pane'
 		})
 		.css({
 			position : 'absolute',
@@ -31,7 +28,7 @@ function juiWindow(params){
 			left : 0,
 			height : this.params.height || defaults.windowPaneHeight,
 			width : this.params.width || defaults.windowWidth,
-			opacity: .8
+			opacity: '.8'
 		});
 		
 	this.container.draggable({
