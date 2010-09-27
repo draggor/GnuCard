@@ -16,7 +16,8 @@
 	<script language="JavaScript" type="text/javascript" src="../js/jquery-1.4.2.js"></script>
 	<script language="JavaScript" type="text/javascript" src="../js/jquery-ui-1.8.4.custom.min.js"></script>
 	<script type="text/javascript" src="js/juiCore.js"></script>
-	<script type="text/javascript" src="js/juiWindow.js"></script> 
+	<script type="text/javascript" src="js/juiWindow.js"></script>
+	<script type="text/javascript" src="js/card.js"></script> 
 	
 	<!-- favicon --> 
 	<link rel="SHORTCUT ICON" href=""/> 
@@ -28,10 +29,30 @@
  
  	<script type="text/javascript">
  		$(function(){
-			var myWin = new juiWindow();
 			
-			$('body').append(myWin.generate())
+			$('body')
+				.append(makeWindow().get())
+				.append(makeCard().get())
 		})
+		
+		function makeWindow(){
+			return new juiWindow({
+				droppable : true
+			});
+		}
+		
+		function makeCard(){
+			return new card();
+		}
+		
+		function pxToInt(str){
+			if (str) {
+				return parseInt(str.replace(/px/gi, ''));
+			}else{
+				return 0;
+			}
+		}
+		
 	</script>
  
     </head> 

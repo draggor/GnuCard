@@ -1,6 +1,6 @@
 juiElement = {
 	init: function(params){
-		this.juiId = 'juiId' + (window.juiId ? window.juiId++ : window.juiId = 0);
+		this.juiId = 'juiId' + (window.juiId !== undefined ? ++window.juiId : window.juiId = 0);
 		
 		this.params = params || {};
 	
@@ -23,7 +23,7 @@ juiElement = {
 		return this;
 	},
 	
-	generate: function(){
-		return this.container;
+	get: function(){
+		return this.container
 	}
 };

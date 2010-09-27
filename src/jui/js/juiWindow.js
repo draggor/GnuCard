@@ -5,11 +5,11 @@ function juiWindow(params){
 			windowHandleHeight : 35,
 			windowPaneHeight : 300
 		};
-	
-	this.init(params);
+		
+	this.init(params);	
 	
 	this.windowHandle = $('<div>', { 
-			'class' : 'window handle'
+			'class' : 'handle'
 		})
 		.css({
 			position : 'absolute',
@@ -20,7 +20,7 @@ function juiWindow(params){
 		});
 		
 	this.windowPane = $('<div>', { 
-			'class' : 'window pane'
+			'class' : 'pane'
 		})
 		.css({
 			position : 'absolute',
@@ -31,7 +31,34 @@ function juiWindow(params){
 			opacity: '.8'
 		});
 		
-	this.container.draggable({
+	
+		
+	if (this.params.droppable){
+		
+		var pane = this.windowPane;
+		
+		this.windowPane.droppable({
+			accept : '.droppable',
+			//drop : this.params.onDrop
+			drop : function(event, ui){
+					//console.log(arguments)
+				var el = $(ui.draggable[0]);
+				
+				if (!$(pane).find('#' + el.attr('id')).length) {
+					
+					// Currently BROKEN!!!
+					el.css({
+						top: pxToInt(el.css('top')) - pxToInt(pane.css('top') - defaults.windowPaneHeight),
+						left: pxToInt(el.css('left')) - pxToInt(pane.css('left'))
+					}).appendTo($(this))
+				}
+			}
+		});
+	}
+		
+	this.container
+		.addClass('window')
+		.draggable({
 			handle: this.windowHandle
 		})
 		.append(this.windowHandle)
