@@ -5,6 +5,8 @@ var	net = require('net'),
 	sys = require('sys'),
 	formidable = require('formidable'),
 	io = require('../../lib/Socket.IO-node/'),
+	game = require('./game'),
+	util = require('./util'),
 	cmd = require('./cmd');
 
 var SRC = {
@@ -58,15 +60,27 @@ function handleUpload(req, res) {
 		res.writeHead(200, {'content-type': 'text/html'});
 		res.write('<h1>Deck Upload\'d</h1>');
 		res.end();
-		parseDeck(deck);
+		openFile(deck);
 	});
 	form.parse(req);
 }
 
-function parseDeck(deck) {
+function openFile(file) {
 	/* TODO: Write the parser, add to game.decks!
 	 */
-	sys.log(sys.inspect(deck));
+	sys.log(sys.inspect(file));
+	var rs = fs.createReadStream(file.path);
+	var deck = "";
+	rs.on('data', function(data) {
+		deck += data;
+	});
+	rs.on('end', function() {
+		parseDeck(file.filename, deck);
+	});
+}
+
+function parseDeck(deckName, deck) {
+	game.decks[deckName] = deck.split('\n').map(function(line) { return line.split(' '); });
 }
 
 function dispatchURL(path, pieces, res) {

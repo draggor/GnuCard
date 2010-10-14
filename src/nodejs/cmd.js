@@ -6,19 +6,18 @@ var COMMANDS = {};
 
 function calljs(client, msg) {
 	var msg = JSON.stringify(msg);
-	sys.log(msg);
+	sys.log('One: ' + msg);
 	client.send(msg);
 }
 
-function callalljs(client, msg) {
+/* TODO: Fix this to use map or some other more functional way. */
+function callalljs(clients, msg) {
 	var msg = JSON.stringify(msg);
-	sys.log(msg);
+	sys.log('All: ' + msg);
 	
 	for(c in game.clientsToPlayers) {
 		game.clientsToPlayers[c].client.send(msg);
 	}
-
-//	client.broadcast(msg);
 }
 
 function runCmd(client, funcName, args) {
@@ -128,8 +127,8 @@ COMMANDS.moveToHand = function(client, args) {
 	card.tapped = false;
 	player.zones.hand.push(card);
 
-	callalljs(client, ['hide_card', {id: card.id}]);
-	calljs(player.client, ['move_to_hand', {id: card.id}]);
+	callalljs(client, ['hide_card', {id: args.id}]);
+	calljs(player.client, ['move_to_hand', {id: args.id}]);
 };
 
 COMMANDS.moveToPlay = function(client, args) {
@@ -139,7 +138,7 @@ COMMANDS.moveToPlay = function(client, args) {
 	
 	card.place = 'play';
 	delete player.zones.hand[index];
-	calljs(client, ['move_to_play', {id: card.id}]);
+	callalljs(client, ['move_to_play', {id: card.id}]);
 };
 
 COMMANDS.moveToTopOfDeck = function(client, args) {
@@ -173,17 +172,18 @@ COMMANDS.getDeckList = function(client, args) {
 };
 
 function createAndShuffleDeck(owner, deckName) {
-	var deck = game.decks[owner];
+	var deck = game.decks[deckName];
 
-	deck = explodeDeck(deck);
+	deck = util.explodeDeck(deck);
 	deck = util.shuffle(deck);
 	deck = deck.map(function(img) {
 		var	id = util.getUniqueId(),
-			card = new game.Card(id);
+			card = new game.CardStub(id);
 
 		card.pic = img;
 		card.owner = card.controller = owner;
 		game.cards[id] = card;
+		return card;
 	});
 	return deck;
 }
@@ -203,8 +203,10 @@ COMMANDS.draw = function(client, args) {
 	for(var i = 0; i < parseInt(args.num); i++) {
 		var card = deck.shift();
 		player.zones.hand.push(card);
+		callalljs(client, ['create_card', {id: card.id, pic: card.pic}]);
 		calljs(client, ['move_card', {id: card.id, top: (456 + i * 12), left: (12 + i * 12)}]);
 		calljs(client, ['move_to_hand', {id: card.id}]);
+		calljs(client, ['show_card', {id: card.id}]);
 	}
 	callalljs(client, ['notify', {message: player.name + ' drew ' + args.num + (args.num === 1 ? ' card.' : ' cards.')}]);
 };

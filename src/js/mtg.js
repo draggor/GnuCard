@@ -98,8 +98,7 @@ function deck_selector(json) {
 	}
 	form.appendTo(fg);
 	var selfn = function(event, ui) {
-		var msg = "select_deck " + $(sel + ":selected").text();
-		send_message(msg);
+		send_message(['selectDeck', {deck: $(sel + ":selected").text()}]);
 		$(popups).empty();
 		$("#deckselector").hide();
 		$("#draw").show();
@@ -225,7 +224,7 @@ function remove_image() {
 
 function create_card(json) {
 	var id = json.id, img = json.pic;
-	var card = $("<div>").addClass("card cardHidden cardPlay cardUntapped").attr("ID", id).attr("pic", img).css({top: 0, left:0}).html("C");
+	var card = $("<div>").addClass("card cardHidden cardPlay cardUntapped").attr("ID", id).attr("pic", img).css({top: 0, left:0, position:'absolute'}).html("C");
 	$(card).draggable({ grid: [12, 12], 
 	                    zIndex: 9999,
 			    containment: 'window',
@@ -315,14 +314,3 @@ function show_card(json) {
 }
 
 COMMANDS.show_card = show_card;
-
-function hide_card(json) {
-	var card = $("#" + jsonid);
-	if ($(card).hasClass("cardHidden")) {
-	} else {
-		$(card).addClass("cardHidden");
-	}
-	return card;
-}
-
-COMMANDS.hide_card = hide_card;

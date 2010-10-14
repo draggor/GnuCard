@@ -157,3 +157,23 @@ exports.loadSpoiler = function() {
 		sys.puts('Done loading spoiler_array.js');
 	});
 };
+
+function swap(img) {
+	var arr = img.split("/");
+
+	return '/' + arr[2] + '/' + arr[1] + '/' + arr[3].split('.')[0] + '.jpg';
+}
+
+exports.mod = function() {
+	var mod_map = {};
+	var mod_arr = [];
+	for(i in game.dba) {
+		var c = game.db[game.dba[i]];
+		c.img = swap(c.img);
+		
+		mod_arr.push(c.img);
+		mod_map[c.img] = c;
+	}
+	game.db = mod_map;
+	game.dba = mod_arr;
+}
