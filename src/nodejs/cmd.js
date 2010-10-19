@@ -65,7 +65,7 @@ COMMANDS.updateCards = function(client, args) {
 	var player = game.clientsToPlayers[client];
 	for(k in game.cards) {
 		var card = game.cards[k];
-		calljs(client, ['create_card', {id: card.id, pic: card.pic}]);
+		calljs(client, ['create_card', {id: card.id, img: card.img}]);
 		if(card.place === 'play') {
 			calljs(client, ['show_card', {id: card.id}]);
 		}
@@ -89,12 +89,12 @@ COMMANDS.createCard = function(client, args) {
 		p = game.clientsToPlayers[client],
 		c = game.getRandomCard();
 	
-	cs.pic = c.img;
+	cs.img = c.img;
 	cs.place = 'play';
 	cs.owner = p.name;
 	game.cards[id] = cs;
 	
-	callalljs(client, ['create_card', {id: id,  pic: cs.pic}]);
+	callalljs(client, ['create_card', {id: id,  img: cs.img}]);
 	callalljs(client, ['show_card', {id: id}]);
 };
 
@@ -180,8 +180,9 @@ function createAndShuffleDeck(owner, deckName) {
 		var	id = util.getUniqueId(),
 			card = new game.CardStub(id);
 
-		card.pic = img;
+		card.img = img;
 		card.owner = card.controller = owner;
+		card.name = game.db[img].name;
 		game.cards[id] = card;
 		return card;
 	});
@@ -203,7 +204,7 @@ COMMANDS.draw = function(client, args) {
 	for(var i = 0; i < parseInt(args.num); i++) {
 		var card = deck.shift();
 		player.zones.hand.push(card);
-		callalljs(client, ['create_card', {id: card.id, pic: card.pic}]);
+		callalljs(client, ['create_card', {id: card.id, img: card.img}]);
 		calljs(client, ['move_card', {id: card.id, top: (456 + i * 12), left: (12 + i * 12)}]);
 		calljs(client, ['move_to_hand', {id: card.id}]);
 		calljs(client, ['show_card', {id: card.id}]);
@@ -222,6 +223,6 @@ COMMANDS.shuffle = function(client, args) {
 COMMANDS.viewLibrary = function(client, args) {
 	var	player = game.clientsToPlayers[client];
 
-	calljs(client, ['view_library', {deck: player.zones.deck}]);
+	calljs(client, ['view_library', {list: player.zones.deck.map(function(c) { return {id: c.id, img: c.img, name: game.db[c.img].name}; })}]);
 	callalljs(client, ['notify', {message: player.name + ' is looking at its library.'}]);
 };

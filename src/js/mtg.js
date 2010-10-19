@@ -2,12 +2,6 @@ var socket;
 var COMMANDS = {};
 
 function init() {
-	socket = new io.Socket('127.0.0.1', {rememberTransport: false, port:9000});
-	socket.connect();
-	socket.addEvent('message', function(data) {
-		runCmd(JSON.parse(data));
-	});
-	
 	$("#library").hide().contextMenu([
 		{"Draw 1 Card":function(menuItem,menu){
 			send_message(['draw', {num:1}]);
@@ -126,8 +120,8 @@ function view_library(json) {
 	var sel = $("<select>").attr({"size":"20",
 				      "multiple":"false"}).appendTo(fg);
 	for(var card = 0; card < list.length; card++) {
-		$("<option>").attr({"value":list[card][0],
-		                    "pic":list[card][1]}).text(list[card][2]).appendTo(sel);
+		$("<option>").attr({"value":list[card].id,
+		                    "img":list[card].img}).text(list[card].name).appendTo(sel);
 	}
 	var selfn = function(event, ui) {
 		$(popups).empty();
@@ -189,14 +183,25 @@ function toggle_tap(json) {
 COMMANDS.toggle_tap = toggle_tap;
 
 function ev_logon(event) {
-	send_message(['logon', {name: $("#logon_name").val(), pass: $("#logon_pass").val()}]);
-	$("#logon_name").hide();
-	$("#logon_pass").hide();
-	$("#logon").hide();
-	$("#deckselector").show();
-	$("#addcard").show();
-	$("#library").show();
-	$("#graveyard").show();
+	socket = new io.Socket($('#server').val(), {rememberTransport: false, port:9000});
+	socket.on('message', function(data) {
+		runCmd(JSON.parse(data));
+	});
+	socket.on('connect', function() {
+		send_message(['logon', {name: $("#logon_name").val(), pass: $("#logon_pass").val()}]);
+		$("#logon_name").hide();
+		$("#logon_pass").hide();
+		$("#logon").hide();
+		$("#server").hide();
+		$("#deckselector").show();
+		$("#addcard").show();
+		$("#library").show();
+		$("#graveyard").show();
+	});
+	socket.on('disconnect', function() {
+		alert("Ya dun got boot'd!");
+	});
+	socket.connect();
 	event.preventDefault();
 }
 
@@ -223,8 +228,8 @@ function remove_image() {
 }
 
 function create_card(json) {
-	var id = json.id, img = json.pic;
-	var card = $("<div>").addClass("card cardHidden cardPlay cardUntapped").attr("ID", id).attr("pic", img).css({top: 0, left:0, position:'absolute'}).html("C");
+	var id = json.id, img = json.img;
+	var card = $("<div>").addClass("card cardHidden cardPlay cardUntapped").attr("ID", id).attr("img", img).css({top: 0, left:0, position:'absolute'}).html("C");
 	$(card).draggable({ grid: [12, 12], 
 	                    zIndex: 9999,
 			    containment: 'window',

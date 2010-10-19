@@ -29,13 +29,14 @@ exports.Player = Player;
 
 function CardStub(id) {
 	this.id = id;
+	this.name = '';
 	this.top = 0;
 	this.left = 0;
 	this.place = 'hidden';
 	this.tapped = false;
 	this.owner = '';
 	this.controller = '';
-	this.pic = '';
+	this.img = '';
 }
 
 exports.CardStub = CardStub;

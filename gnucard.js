@@ -1,5 +1,5 @@
 var 	gnucard = require('./src/nodejs/server'),
-//	repl = require('repl'),
+	repl = require('repl'),
 	spoiler = require('./src/nodejs/spoiler'),
 	game = require('./src/nodejs/game');
 
