@@ -19,6 +19,7 @@ var HEAD_INFO = {
 	html: {encoding: 'utf8', contentType: 'text/html'},
 	css: {encoding: 'utf8', contentType: 'text/css'},
 	js: {encoding: 'utf8', contentType: 'text/javascript'},
+	png: {encoding: 'binary', contentType: 'images/png'},
 	swf: {encoding: 'binary', contentType: 'application/x-shockwave-flash'}
 };
 
@@ -86,7 +87,7 @@ function parseDeck(deckName, deck) {
 function dispatchURL(path, pieces, res) {
 	var	head = HEAD_INFO[path.split('.').pop()],
 		type = pieces[1];
-
+	
 	res.writeHead(200, {'Content-Type': head.contentType});
 	fs.readFile('./src' + path, head.encoding, function(err, data) {
 		if(err) {

@@ -20,6 +20,7 @@ function init() {
 	$("#addcard").hide().bind("click", ev_create_card);
 	$("#logon").bind("click", ev_logon);
 	$("#deckselector").hide().bind("click", ev_get_deck_list);
+	$("#deckupload").hide().bind("click", ev_deck_upload);
 	$("#draw").hide().bind("click", ev_draw_one);
 	$("div.cardPlay").live("dblclick", ev_toggle_tap);
 	$("div.card").draggable();
@@ -28,6 +29,13 @@ function init() {
 	});
 	$("#hand").droppable({
 		drop: ev_move_to_hand
+	});
+	$('#header').dialog({position: 'bottom'});
+	$('#handdialog').dialog({position: 'right', stack: 'false'});
+	$('#cardinfodialog').dialog({
+		position: 'left',
+		height: 510,
+		width: 350
 	});
 	$(window).unload(function() {
         	send_message(['disconnect', {}]);
@@ -63,6 +71,41 @@ function ev_draw_one(event, ui) {
 function ev_draw_n(event, ui) {
 	var msg = "draw ";
 	send_message(msg);
+}
+
+function ev_deck_upload(event, ui) {
+	var startCallback = function() {
+		return true;
+	};
+	var completeCallback = function(response) {
+		alert(response);
+	};
+	var dialog = $('#deckuploaddialog');
+	var form = $('<form>').attr({enctype:"multipart/form-data", method:"post", action:"upload", id:"uploadform"}).submit(function() {
+		 return AIM.submit(this, {
+			 'onStart' : startCallback, 
+			 'onComplete' : completeCallback
+		 });
+	});
+	$(form).append($('<span>').text('Choose a .txt deck list to upload: '));
+	$(form).append($('<input type="file" name="deck" device="files" accept="text/*">'));
+	
+	$(dialog).append($('<p>').append($(form)));
+	$(dialog).dialog({
+		modal: true,
+		buttons: {
+			'Upload Deck': function() {
+				$('#uploadform').submit();
+				$(this).dialog('close');
+				$(this).children().remove();
+			},
+			Cancel: function() {
+				$(this).dialog('close');
+				$(this).children().remove();
+			}
+		}
+	});
+	event.preventDefault();
 }
 
 function ev_get_deck_list(event, ui) {
@@ -134,15 +177,17 @@ COMMANDS.view_library = view_library;
 
 function ev_move_to_play(event, ui) {
 	if($(ui.draggable).hasClass("cardHand")) {
-		send_message(['moveToPlay', {id: $(ui.draggable).attr("ID")}]);
+		send_message(['moveToPlay', {id: $(ui.draggable).attr("id")}]);
 	}
 }
 
 function move_to_play(json) {
 	var card = "#" + json.id;
-	$(card).prependTo($("#playarea"));
-	$(card).removeClass("cardHidden cardHand");
-	$(card).addClass("cardPlay cardUntapped");
+	var newcard = makeCard(cardAttrs(card));
+	$(card).remove();
+	$(newcard).prependTo($("#playarea"));
+	$(newcard).removeClass("cardHidden cardHand");
+	$(newcard).addClass("cardPlay cardUntapped");
 }
 
 COMMANDS.move_to_play = move_to_play;
@@ -155,9 +200,17 @@ function ev_move_to_hand(event, ui) {
 
 function move_to_hand(json) {
 	var card = "#" + json.id;
-	$(card).appendTo($("#hand"));
-	$(card).removeClass("cardHidden cardPlay");
-	$(card).addClass("cardHand");
+	var img = $(card).attr('img');
+	var li = $('<li>').attr('value', json.id).attr(cardAttrs(card)).text($(card).attr('img')).hover(
+		function(e) {
+			show_image(img);
+		},
+		function(e) {
+		//	remove_image();
+		}
+	).addClass('cardHand');
+	$(card).remove();
+	$("#hand").append(makeDraggable(li));
 }
 
 COMMANDS.move_to_hand = move_to_hand;
@@ -171,7 +224,7 @@ function hide_card(json) {
 COMMANDS.hide_card = hide_card;
 
 function ev_toggle_tap(event) {
-	send_message(['toggleTap', {id: $(this).attr("ID")}]);
+	send_message(['toggleTap', {id: $(this).attr("id")}]);
 }
 
 function toggle_tap(json) {
@@ -194,6 +247,7 @@ function ev_logon(event) {
 		$("#logon").hide();
 		$("#server").hide();
 		$("#deckselector").show();
+		$("#deckupload").show();
 		$("#addcard").show();
 		$("#library").show();
 		$("#graveyard").show();
@@ -228,13 +282,44 @@ function remove_image() {
 }
 
 function create_card(json) {
+	var card = makeCard(json);
+
+	$(card).prependTo($('#playarea'));
+}
+
+function makeCard(json) {
 	var id = json.id, img = json.img;
-	var card = $("<div>").addClass("card cardHidden cardPlay cardUntapped").attr("ID", id).attr("img", img).css({top: 0, left:0, position:'absolute'}).html("C");
-	$(card).draggable({ grid: [12, 12], 
-	                    zIndex: 9999,
-			    containment: 'window',
-			    stop: ev_move_card });
-	$(card).hover(
+	var card = $("<div>").addClass("card cardHidden cardPlay cardUntapped").attr("ID", id).attr("img", img).css({
+		top: 0, 
+		left: 0, 
+		position:'absolute'
+	}).html("C");
+	return makeContextMenu(makeDraggable(makeHover(card)));
+}
+
+function cardAttrs(card) {
+	return {
+		id: $(card).attr('id'),
+		img: $(card).attr('img'),
+		top: $(card).css('top'),
+		left: $(card).css('left'),
+		name: $(card).attr('name')
+	}
+}
+
+function makeDraggable(card) {
+	return $(card).draggable({
+		grid: [12, 12],
+		zIndex: 9999,
+		appendTo: '#playarea',
+		containment: 'document',
+		stop: ev_move_card,
+	});
+}
+
+function makeHover(card) {
+	var img = $(card).attr('img');
+	return $(card).hover(
 		function(e) {
 			show_image(img);
 		},
@@ -242,7 +327,9 @@ function create_card(json) {
 		//	remove_image();
 		}
 	);
-	$(card).prependTo($("#playarea"));
+}
+
+function makeContextMenu(card) {
 	$(card).contextMenu([
 		{"Move to Hand":function(menuItem,menu) {
 			var id = $(this).attr("ID");

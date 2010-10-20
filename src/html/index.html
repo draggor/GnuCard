@@ -2,10 +2,12 @@
   <head>
     <link rel="stylesheet" type="text/css" href="css/mtg.css" />
     <link rel="stylesheet" type="text/css" href="css/jquery.contextmenu.css" />
+    <link rel="stylesheet" type="text/css" href="css/cupertino/jquery-ui-1.8.4.custom.css" />
     <script type="text/javascript" src="js/jquery-1.4.2.js"></script>
     <script type="text/javascript" src="js/jquery-ui-1.8.4.custom.min.js"></script>
     <script type="text/javascript" src="js/jquery.contextmenu.js"></script>
     <script type="text/javascript" src="js/Socket.IO/socket.io.js"></script>
+    <script type="text/javascript" src="js/webtoolkit.aim.js"></script>
     <script type="text/javascript" src="js/mtg.js"></script>
     <script type="text/javascript">
       io.setPath('/js/Socket.IO/');
@@ -23,11 +25,19 @@
 
 <div id="leftpane">
 
-  <div id="cardinfo">
+  <div id="cardinfodialog" title="Card Image">
+
+	<div id="cardinfo">
+
+	</div>
 
   </div>
 
-  <div id="hand">
+  <div id="handdialog" title="Hand">
+
+	<ul id='hand'>
+
+	</ul>
 
   </div>
 
@@ -35,10 +45,10 @@
 
 <div id="mainarea">
 
-  <div id="header">
+  <div id="header" title='Menu'>
 
     <span>
-      <span id="library">Library</span> | 
+      <span id="library">Library</span>
       <span id="graveyard">Graveyard</span>
     </span>
     
@@ -48,6 +58,7 @@
     <input type="text" length="5" id="logon_name" />
     <input type="password" length="5" id="logon_pass" />
     <a href="#" id="logon">Logon</a>
+    <a href="#" id="deckupload">Upload Deck</a>
     <a href="#" id="deckselector">Choose Deck</a>
     <a href="#" id="draw">Draw a Card</a>
 
@@ -59,7 +70,13 @@
 
 </div>
 
-<div id="popups"></div>
+<div id="popups">
+
+	<div id="deckuploaddialog" title="Upload Deck">
+
+	</div>
+
+</div>
 
 </body>
 </html>
