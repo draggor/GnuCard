@@ -51,7 +51,7 @@ var SRC_dracolair = "http://mtgimg.dracolair.net/scans/";
 var SRC_local = "file///home/draggor/Programming/compojure/magiccards.info/scans/";
 
 function show_image(img) {
-	var cardimg = $("<img>").attr("src", $('#imgsrc').val() + img).attr("id", "cardimg");
+	var cardimg = $("<img>").attr("src", SRC_magiccards_info + img).attr("ID", "cardimg");
 	$("#cardinfo").html(cardimg);
 }
 
@@ -60,13 +60,15 @@ function remove_image() {
 }
 
 function ev_move_card(event, ui) {
-	send_message(['moveCard', {id: $(event.target).attr("id"), top: ui.offset.top, left: ui.offset.left}]);
+	send_message(['moveCard', {id: $(this).attr("ID"), top: ui.offset.top, left: ui.offset.left}]);
 }
 
 function cardAttrs(card) {
 	return {
 		id: $(card).attr('id'),
 		img: $(card).attr('img'),
+		top: $(card).css('top'),
+		left: $(card).css('left'),
 		name: $(card).attr('name')
 	};
 }
@@ -75,33 +77,10 @@ function makeDraggable(card) {
 	return $(card).draggable({
 		grid: [12, 12],
 		zIndex: 9999,
-		helper: 'clone',
-		appendTo: 'body',
+		appendTo: '#playarea',
 		containment: 'document',
-		start: function(event, ui) {
-			modifyClass('.ui-dialog', 'overflow', 'visible');
-		},
-		stop: function(event, ui) {
-			modifyClass('.ui-dialog', 'overflow', 'hidden');
-			ev_move_card(event, ui);
-		}
+		stop: ev_move_card
 	});
-}
-
-function modifyClass(classname, property, value) {
-	for(var i = 0; i < document.styleSheets.length; i++) {
-		var rules = document.styleSheets[i].cssRules || document.styleSheets[i].rules;
-		for(var j = 0; j < rules.length; j++) {
-			if(rules[j].selectorText === classname) {
-				if(value) {
-					rules[j].style[property] = value;
-				} else {
-					delete rules[j].style[property];
-				}
-				return;
-			}
-		}
-	}
 }
 
 function makeHover(card) {
@@ -119,24 +98,24 @@ function makeHover(card) {
 function makeContextMenu(card) {
 	$(card).contextMenu([
 		{"Move to Hand":function(menuItem,menu) {
-			var id = $(this).attr("id");
+			var id = $(this).attr("ID");
 			send_message("moveToHand " + id);
 			send_message("moveCard " + id + " 468 24");
 		}},
 		{"Move to TOP of Deck":function(menuItem,menu) {
-			var id = $(this).attr("id");
+			var id = $(this).attr("ID");
 			send_message("moveToTopOfDeck " + id);
 		}},
 		{"Move to BOTTOM of Deck":function(menuItem,menu) {
-			var id = $(this).attr("id");
+			var id = $(this).attr("ID");
 			send_message("moveToBottomOfDeck " + id);
 		}},
 		{"Move to Graveyard":function(menuItem,menu) {
-			var id = $(this).attr("id");
+			var id = $(this).attr("ID");
 			send_message("moveToGraveyard " + id);
 		}},
 		{"Remove From Game":function(menuItem,menu) {
-			var id = $(this).attr("id");
+			var id = $(this).attr("ID");
 			send_message("removeFromGame " + id);
 		}},
 		$.contextMenu.separator,
@@ -147,10 +126,10 @@ function makeContextMenu(card) {
 
 function makeCard(json) {
 	var id = json.id, img = json.img;
-	var card = $("<div>").addClass("card cardHidden cardPlay cardUntapped").attr("id", id).attr("img", img).css({
-		top: json.top || 0, 
-		left: json.left || 0, 
-		position: 'absolute'
+	var card = $("<div>").addClass("card cardHidden cardPlay cardUntapped").attr("ID", id).attr("img", img).css({
+		top: 0, 
+		left: 0, 
+		position:'absolute'
 	}).html("C");
 	return makeContextMenu(makeDraggable(makeHover(card)));
 }
@@ -161,7 +140,7 @@ function runCmd(json) {
 	if(func) {
 		func(json[1]);
 	} else {
-		COMMANDS.notify({message: 'Function ' + func + ' not found!'});
+		COMMANDS.notify({message: 'Function ' + funcName + ' not found!'});
 	}
 }
 
@@ -250,46 +229,42 @@ COMMANDS.deck_selector = function(json) {
 	};
 	$("<input type='button'>").attr("value", "Select Deck").bind("click", selfn).appendTo(form);
 };
-
-COMMANDS.deck_selector = function(json) {
-	var dialog = $('#deckselectordialog');
-
-	var form = $('<form>');
-	var sel = $('<select>').attr({
-		'size': '5',
-		'multiple': 'false'
-	}).appendTo(form);
-
-	for(var deck = 0; deck < json.list.length; deck++) {
-		$('<option>').attr('value', json.list[deck]).text(json.list[deck]).appendTo(sel);
-	}
-
-	$(dialog).append($('<p>').append($(form)));
-
-	$(dialog).dialog({
-		modal: true,
-		buttons: {
-			'Select Deck': function() {
-				send_message(['selectDeck', {deck: $(sel + ':selected').text()}]);
-				$('#draw').show();
-				$(this).dialog('close');
-				$(this).children().remove();
-			},
-			Cancel: function() {
-				$(this).dialog('close');
-				$(this).children().remove();
-			}
-		}
-	});
-}
-
-COMMANDS.view_dialog = function(json) {
+/*
+COMMANDS.view_library = function(json) {
 	var list = json.list;
-	var dialog = $('#viewdialog');
+	var popups = $("#popups");
+	var bg = $("<div>").css({"width": "100%",
+	                         "height": "100%",
+				 "background-color": "#000000",
+				 "z-index": "9999",
+				 "position": "absolute",
+				 "opacity": "0.5"}).appendTo(popups);
+	var fg = $("<div>").css({"width": "70%",
+	                         "height": "70%",
+				 "z-index": "10000",
+				 "position": "absolute",
+				 "margin": "2em",
+				 "background-color": "#FFFFFF"}).appendTo(popups);
+	var sel = $("<select>").attr({"size":"20",
+				      "multiple":"false"}).appendTo(fg);
+	for(var card = 0; card < list.length; card++) {
+		$("<option>").attr({"value":list[card].id,
+		                    "img":list[card].img}).text(list[card].name).appendTo(sel);
+	}
+	var selfn = function(event, ui) {
+		$(popups).empty();
+	};
+	$("<input type='button'>").attr("value", "Close").bind("click", selfn).appendTo(fg);
+};
+*/
+COMMANDS.view_dialog = function(json) {
+	alert('asdf');
+	var list = json.list;
+	var dialog = $('#viewdialog').attr('title', json.name);
 	var ul = $('<ul>');
 
 	for(var c = 0; c < list.length; c++) {
-		ul.append(makeHover($('<li>').addClass('ui-state-default').attr({id: list[c].id, img: list[c].img}).text(list[c].name)));
+		ul.append($('<li>').addClass('ui-state-default').attr({id: list[c].id, img: list[c].img}).text(list[c].name));
 	}
 
 	$(ul).sortable({
@@ -298,7 +273,6 @@ COMMANDS.view_dialog = function(json) {
 
 	$(dialog).append($('<p>').append($(ul)));
 	$(dialog).dialog({
-		title: json.name,
 		buttons: {
 			Ok: function() {
 				$(this).dialog('close');
@@ -310,16 +284,13 @@ COMMANDS.view_dialog = function(json) {
 
 function ev_move_to_play(event, ui) {
 	if($(ui.draggable).hasClass("cardHand")) {
-		send_message(['moveToPlay', {id: $(ui.draggable).attr("id"), top: ui.offset.top, left: ui.offset.left}]);
+		send_message(['moveToPlay', {id: $(ui.draggable).attr("id")}]);
 	}
 }
 
 COMMANDS.move_to_play = function(json) {
 	var card = "#" + json.id;
-	var attrs = cardAttrs(card);
-	attrs.top = json.top;
-	attrs.left = json.left;
-	var newcard = makeCard(attrs);
+	var newcard = makeCard(cardAttrs(card));
 	$(card).remove();
 	$(newcard).prependTo($("#playarea"));
 	$(newcard).removeClass("cardHidden cardHand");
@@ -328,7 +299,7 @@ COMMANDS.move_to_play = function(json) {
 
 function ev_move_to_hand(event, ui) {
 	if($(ui.draggable).hasClass("cardPlay")) {
-		send_message(['moveToHand', {id: $(ui.draggable).attr("id")}]);
+		send_message(['moveToHand', {id: $(ui.draggable).attr("ID")}]);
 	}
 }
 
@@ -344,7 +315,7 @@ COMMANDS.move_to_hand = function(json) {
 		}
 	).addClass('cardHand');
 	$(card).remove();
-	$("#hand").append($(makeDraggable(li)).draggable('option', 'revert', true).unbind('dragstop'));
+	$("#hand").append(makeDraggable(li));
 };
 
 COMMANDS.hide_card = function(json) {
@@ -354,7 +325,7 @@ COMMANDS.hide_card = function(json) {
 };
 
 function ev_toggle_tap(event) {
-	send_message(['toggleTap', {id: $(event.target).attr("id")}]);
+	send_message(['toggleTap', {id: $(this).attr("id")}]);
 }
 
 COMMANDS.toggle_tap = function(json) {
@@ -364,7 +335,7 @@ COMMANDS.toggle_tap = function(json) {
 };
 
 function ev_logon(event) {
-	socket = new io.Socket($('#server').val(), {/*transports: ['websocket'],*/ rememberTransport: false, port:9000});
+	socket = new io.Socket($('#server').val(), {transports: ['websocket'], rememberTransport: false, port:9000});
 	socket.on('message', function(data) {
 		runCmd(JSON.parse(data));
 	});
@@ -379,7 +350,6 @@ function ev_logon(event) {
 		$("#addcard").show();
 		$("#library").show();
 		$("#graveyard").show();
-		$("#imgsrc").show();
 	});
 	socket.on('disconnect', function() {
 		alert("Ya dun got boot'd!");
@@ -404,7 +374,7 @@ COMMANDS.create_card = function(json) {
 };
 
 COMMANDS.move_card = function(json) {
-	var card = "#" + json.id;
+	var card = $("#" + json.id);
 	var to = pxToInt($(card).css("top"));
 	var lo = pxToInt($(card).css("left"));
 	var tm = parseInt(json.top, 10) - to;
@@ -452,7 +422,6 @@ function init() {
 			send_message(['shuffle', {}]);
 		}}
 	]);
-	$("#imgsrc").hide();
 	$("#graveyard").hide();
 	$("#addcard").hide().bind("click", ev_create_card);
 	$("#logon").bind("click", ev_logon);
@@ -468,7 +437,7 @@ function init() {
 		drop: ev_move_to_hand
 	});
 	$('#header').dialog({position: 'bottom'});
-	$('#handdialog').dialog({position: 'right', stack: 'false'}).css('overflow', 'visible');
+	$('#handdialog').dialog({position: 'right', stack: 'false'});
 	$('#cardinfodialog').dialog({
 		position: 'left',
 		height: 510,

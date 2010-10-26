@@ -12,7 +12,7 @@ exports.getUniqueId = (function() {
 
 exports.shuffle = function(deck) {
 	for(var i = 0; i < deck.length; i++) {
-		var j = Math.floor(Math.random() * deck.length) + 1;
+		var j = Math.floor(Math.random() * deck.length);
 		var tempi = deck[i];
 		deck[i] = deck[j];
 		deck[j] = tempi;

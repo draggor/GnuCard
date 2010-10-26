@@ -94,7 +94,7 @@ COMMANDS.createCard = function(client, args) {
 	cs.owner = p.name;
 	game.cards[id] = cs;
 	
-	callalljs(client, ['create_card', {id: id,  img: cs.img}]);
+	callalljs(client, ['create_card', {id: id,  img: cs.img, name: game.db[cs.img].name}]);
 	callalljs(client, ['show_card', {id: id}]);
 };
 
@@ -137,8 +137,10 @@ COMMANDS.moveToPlay = function(client, args) {
 		index = player.zones.hand.indexOf(card);
 	
 	card.place = 'play';
+	card.top = args.top;
+	card.left = args.left;
 	delete player.zones.hand[index];
-	callalljs(client, ['move_to_play', {id: card.id}]);
+	callalljs(client, ['move_to_play', {id: card.id, top: card.top, left: card.left}]);
 };
 
 COMMANDS.moveToTopOfDeck = function(client, args) {
@@ -179,7 +181,7 @@ function createAndShuffleDeck(owner, deckName) {
 	deck = deck.map(function(img) {
 		var	id = util.getUniqueId(),
 			card = new game.CardStub(id);
-
+		
 		card.img = img;
 		card.owner = card.controller = owner;
 		card.name = game.db[img].name;
@@ -220,9 +222,24 @@ COMMANDS.shuffle = function(client, args) {
 	callalljs(client, ['notify', {message: player.name + ' shuffled its deck.'}]);
 };
 
+function viewListCard(c) {
+	return {
+		id: c.id, 
+		img: c.img, 
+		name: game.db[c.img].name
+	};
+}
+
 COMMANDS.viewLibrary = function(client, args) {
 	var	player = game.clientsToPlayers[client];
 
-	calljs(client, ['view_library', {list: player.zones.deck.map(function(c) { return {id: c.id, img: c.img, name: game.db[c.img].name}; })}]);
+	calljs(client, ['view_dialog', {list: player.zones.deck.map(viewListCard)}]);
 	callalljs(client, ['notify', {message: player.name + ' is looking at its library.'}]);
+};
+
+COMMANDS.viewTopN = function(client, args) {
+	var	player = game.clientsToPlayers[client];
+
+	calljs(client, ['view_dialog', {list: player.zones.deck.slice(0, args.num).map(viewListCard), name: args.name}]);
+	callalljs(client, ['notify', {message: player.name + ' is looking at the top ' + args.num + ' cards of its library.'}]);
 };
