@@ -77,17 +77,13 @@ function makeDraggable(card) {
 		zIndex: 9999,
 		helper: 'clone',
 		appendTo: 'body',
-		containment: 'document',
-		start: function(event, ui) {
-			modifyClass('.ui-dialog', 'overflow', 'visible');
-		},
-		stop: function(event, ui) {
-			modifyClass('.ui-dialog', 'overflow', 'hidden');
-			ev_move_card(event, ui);
-		}
+		containment: 'document'
 	});
 }
 
+/*
+ * Currently not used, though should go into a util lib somewhere
+ */
 function modifyClass(classname, property, value) {
 	for(var i = 0; i < document.styleSheets.length; i++) {
 		var rules = document.styleSheets[i].cssRules || document.styleSheets[i].rules;
@@ -309,9 +305,13 @@ COMMANDS.view_dialog = function(json) {
 };
 
 function ev_move_to_play(event, ui) {
+	var func;
 	if($(ui.draggable).hasClass("cardHand")) {
-		send_message(['moveToPlay', {id: $(ui.draggable).attr("id"), top: ui.offset.top, left: ui.offset.left}]);
+		func = 'moveToPlay';
+	} else {
+		func = 'moveCard';
 	}
+	send_message([func, {id: $(ui.draggable).attr("id"), top: ui.offset.top, left: ui.offset.left}]);
 }
 
 COMMANDS.move_to_play = function(json) {
