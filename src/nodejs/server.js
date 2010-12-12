@@ -32,8 +32,13 @@ var server = http.createServer(function(req, res) {
 	
 	if(path === '/') {
 		res.writeHead(200, {'Content-Type': 'text/html'});
-		res.write(index);
+	/*	res.write(index);
 		res.end();
+	*/
+		fs.readFile(SRC.html + 'index.html', function(err, data) {
+			res.write(data);
+			res.end();
+		});
 	} else if(path === '/upload') {
 		handleUpload(req, res);
 	} else if(path === '/upload.html') {

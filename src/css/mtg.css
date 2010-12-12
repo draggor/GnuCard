@@ -14,10 +14,11 @@
 }
 
 .cardHand {
-	border: 1px solid;
-	width: 48px;
-	height: 67px;
-	position: absolute;	
+
+}
+
+.cardDeck {
+
 }
 
 .cardUntapped {
@@ -50,7 +51,7 @@
 }
 
 #hand {
-	width: 312px;
+	width: 200px;
 	height: 200px;
 	border: 1px solid;
 }

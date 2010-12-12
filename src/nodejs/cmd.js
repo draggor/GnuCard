@@ -121,8 +121,10 @@ COMMANDS.toggleTap = function(client, args) {
 
 COMMANDS.moveToHand = function(client, args) {
 	var 	card = game.cards[args.id],
-		player = game.namesToPlayers[card.owner];
+		player = game.namesToPlayers[card.owner],
+		index = player.zones[card.place].indexOf(card);
 
+	player.zones[card.place].splice(index, 1);
 	card.place = 'hand';
 	card.tapped = false;
 	player.zones.hand.push(card);
@@ -134,12 +136,12 @@ COMMANDS.moveToHand = function(client, args) {
 COMMANDS.moveToPlay = function(client, args) {
 	var	card = game.cards[args.id],
 		player = game.clientsToPlayers[client],
-		index = player.zones.hand.indexOf(card);
+		index = player.zones[card.place].indexOf(card);
 	
+	player.zones[card.place].splice(index, 1);
 	card.place = 'play';
 	card.top = args.top;
 	card.left = args.left;
-	delete player.zones.hand[index];
 	callalljs(client, ['move_to_play', {id: card.id, top: card.top, left: card.left}]);
 };
 
@@ -185,6 +187,7 @@ function createAndShuffleDeck(owner, deckName) {
 		card.img = img;
 		card.owner = card.controller = owner;
 		card.name = game.db[img].name;
+		card.place = 'deck';
 		game.cards[id] = card;
 		return card;
 	});
@@ -206,6 +209,7 @@ COMMANDS.draw = function(client, args) {
 	for(var i = 0; i < parseInt(args.num); i++) {
 		var card = deck.shift();
 		player.zones.hand.push(card);
+		card.place = 'hand';
 		callalljs(client, ['create_card', {id: card.id, img: card.img}]);
 		calljs(client, ['move_card', {id: card.id, top: (456 + i * 12), left: (12 + i * 12)}]);
 		calljs(client, ['move_to_hand', {id: card.id}]);

@@ -7,8 +7,8 @@ gnucard.startServer(9000);
 
 spoiler.loadSpoiler();
 
-/*
+
 var r = repl.start();
 r.context.spoiler = spoiler;
 r.context.game = game;
-*/
+

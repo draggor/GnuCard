@@ -77,7 +77,8 @@ function makeDraggable(card) {
 		zIndex: 9999,
 		helper: 'clone',
 		appendTo: 'body',
-		containment: 'document'
+		containment: 'document',
+		revert: 'invalid'
 	});
 }
 
@@ -214,40 +215,6 @@ function ev_get_deck_list(event, ui) {
 }
 
 COMMANDS.deck_selector = function(json) {
-	var list = json.list;
-	var popups = $("#popups");
-	var bg = $("<div>").css({"width": "100%",
-	                         "height": "100%",
-				 "background-color": "#000000",
-				 "z-index": "9999",
-				 "position": "absolute",
-				 "opacity": "0.5"}).appendTo(popups);
-	var fg = $("<div>").css({"width": "70%",
-	                         "height": "70%",
-				 "z-index": "10000",
-				 "position": "absolute",
-				 "margin": "2em",
-				 "background-color": "#FFFFFF"}).appendTo(popups);
-	var form = $("<form>");
-	var sel = $("<select>").attr({"size": "5",
-	                              "multiple": "false"}).appendTo(form);
-	for(var deck = 0; deck < list.length; deck++) {
-		$("<option>").attr("value", list[deck]).text(list[deck]).appendTo(sel);
-	}
-	form.appendTo(fg);
-	var selfn = function(event, ui) {
-		send_message(['selectDeck', {deck: $(sel + ":selected").text()}]);
-		$(bg).children().remove();
-		$(bg).remove();
-		$(fg).children().remove();
-		$(fg).remove();
-		$("#deckselector").hide();
-		$("#draw").show();
-	};
-	$("<input type='button'>").attr("value", "Select Deck").bind("click", selfn).appendTo(form);
-};
-
-COMMANDS.deck_selector = function(json) {
 	var dialog = $('#deckselectordialog');
 
 	var form = $('<form>');
@@ -304,14 +271,45 @@ COMMANDS.view_dialog = function(json) {
 	});
 };
 
+function makeListCard(json) {
+	return makeDraggable(makeHover($('<li>').addClass('ui-state-default').attr({id: json.id, img: json.img}).text(json.name)));
+}
+
+COMMANDS.view_dialog = function(json) {
+	var list = json.list;
+	var dialog = $('#viewdialog');
+	var ul = $('<ul>');
+
+	for(var c = 0; c < list.length; c++) {
+		ul.append($(makeListCard(list[c])).addClass('cardDeck'));
+	}
+
+	$(dialog).append($('<p>').append($(ul)));
+	$(dialog).dialog({
+		title: json.name,
+		buttons: {
+			Ok: function() {
+				$(this).dialog('close');
+				$(this).children().remove();
+			}
+		}
+	});
+};
+
 function ev_move_to_play(event, ui) {
 	var func;
 	if($(ui.draggable).hasClass("cardHand")) {
 		func = 'moveToPlay';
-	} else {
+	} else if($(ui.draggable).hasClass("cardPlay")) {
 		func = 'moveCard';
+	} else if($(ui.draggable).hasClass("cardDeck")) {
+		func = 'moveToPlay';
 	}
-	send_message([func, {id: $(ui.draggable).attr("id"), top: ui.offset.top, left: ui.offset.left}]);
+	if(func) {
+		send_message([func, {id: $(ui.draggable).attr("id"), top: ui.offset.top, left: ui.offset.left}]);
+	} else {
+		event.preventDefault();
+	}
 }
 
 COMMANDS.move_to_play = function(json) {
@@ -327,24 +325,22 @@ COMMANDS.move_to_play = function(json) {
 };
 
 function ev_move_to_hand(event, ui) {
-	if($(ui.draggable).hasClass("cardPlay")) {
+	if($(ui.draggable).hasClass("cardPlay") || $(ui.draggable).hasClass("cardDeck")) {
 		send_message(['moveToHand', {id: $(ui.draggable).attr("id")}]);
 	}
 }
 
 COMMANDS.move_to_hand = function(json) {
-	var card = "#" + json.id;
+	var card = '#' + json.id;
+	var attrs = cardAttrs(card);
 	var img = $(card).attr('img');
-	var li = $('<li>').attr('value', json.id).attr(cardAttrs(card)).text($(card).attr('img')).hover(
-		function(e) {
-			show_image(img);
-		},
-		function(e) {
-		//	remove_image();
-		}
-	).addClass('cardHand');
+	attrs.name = img;
+	var li = makeListCard(attrs);
+	
+	$(li).addClass('cardHand').unbind('dragstop');
+
 	$(card).remove();
-	$("#hand").append($(makeDraggable(li)).draggable('option', 'revert', true).unbind('dragstop'));
+	$('#hand').append($(li)); //.draggable('option', 'revert', true).unbind('dragstop'));
 };
 
 COMMANDS.hide_card = function(json) {
@@ -379,6 +375,7 @@ function ev_logon(event) {
 		$("#addcard").show();
 		$("#library").show();
 		$("#graveyard").show();
+		$("#rfg").show();
 		$("#imgsrc").show();
 	});
 	socket.on('disconnect', function() {
@@ -453,7 +450,16 @@ function init() {
 		}}
 	]);
 	$("#imgsrc").hide();
-	$("#graveyard").hide();
+	$("#graveyard").hide().contextMenu([
+		{"View Graveyard":function(menuItem,menu) {
+			send_message(['viewGraveyard', {}]);
+		}}
+	]);	
+	$('#rfg').hide().contextMenu([
+		{"View RFG":function(menuItem,menu) {
+			send_message(['viewRfg', {}]);
+		}}
+	]);
 	$("#addcard").hide().bind("click", ev_create_card);
 	$("#logon").bind("click", ev_logon);
 	$("#deckselector").hide().bind("click", ev_get_deck_list);
@@ -468,7 +474,16 @@ function init() {
 		drop: ev_move_to_hand
 	});
 	$('#header').dialog({position: 'bottom'});
-	$('#handdialog').dialog({position: 'right', stack: 'false'}).css('overflow', 'visible');
+	$('#handdialog').dialog({
+		position: 'right', 
+		stack: 'false',
+		resizeStop: function(event, ui) {
+			$('#hand').css({
+				height: (ui.size.height - 80),
+				width: (ui.size.width - 75)
+			});
+		}
+	}).css('overflow', 'visible');
 	$('#cardinfodialog').dialog({
 		position: 'left',
 		height: 510,
