@@ -19,6 +19,10 @@ function pxToInt(px) {
 	return parseInt(reverseStr(pxrs), 10);
 }
 
+function pxToInt(px) {
+	return parseInt(px.substring(0, px.length - 2), 10);
+}
+
 function top_n_dialog() {
 	var dialog = $('#viewtopndialog'),
 	    input = $('<input type="text">').val(0);
@@ -285,15 +289,19 @@ COMMANDS.view_dialog = function(json) {
 	}
 
 	$(dialog).append($('<p>').append($(ul)));
-	$(dialog).dialog({
+	var details = {
 		title: json.name,
 		buttons: {
+			Test: function() {
+				alert('BEES!');
+			},
 			Ok: function() {
 				$(this).dialog('close');
 				$(this).children().remove();
 			}
 		}
-	});
+	};
+	$(dialog).dialog(details);
 };
 
 function ev_move_to_play(event, ui) {
