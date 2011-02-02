@@ -23,6 +23,31 @@ function pxToInt(px) {
 	return parseInt(px.substring(0, px.length - 2), 10);
 }
 
+var BUTTONS = {
+	'View Top N': function() {
+		var i = parseInt($(input).val(), 10);
+		if(isNaN(i) || i <= 0) {
+			alert('Enter a number greater than 0!');
+		} else {
+			send_message(['viewTopN', {num: i, name: 'View Top N'}]);
+			$(this).dialog('close');
+			$(this).children().remove();
+		}
+	},
+	Cancel: function() {
+		$(this).dialog('close');
+		$(this).children().remove();
+	},
+	'Upload Deck': function() {
+		$('#uploadform').submit();
+		$(this).dialog('close');
+		$(this).children().remove();
+	},
+	'Move Card Up': function() {
+		send_message(['moveCardUp', {id: c.id}]);
+	}
+};
+
 function top_n_dialog() {
 	var dialog = $('#viewtopndialog'),
 	    input = $('<input type="text">').val(0);
@@ -279,6 +304,10 @@ function makeListCard(json) {
 	return makeDraggable(makeHover($('<li>').addClass('ui-state-default').attr({id: json.id, img: json.img}).text(json.name)));
 }
 
+function makeRadioListCard(json) {
+	return makeDraggable(makeHover($('<li>').addClass('ui-state-default').attr({id: json.id, img: json.img}).html($('<input type="radio" name="cardRadio">').val(json.id)).append(json.name)));
+}
+
 COMMANDS.view_dialog = function(json) {
 	var list = json.list;
 	var dialog = $('#viewdialog');
@@ -292,12 +321,34 @@ COMMANDS.view_dialog = function(json) {
 	var details = {
 		title: json.name,
 		buttons: {
-			Test: function() {
-				alert('BEES!');
-			},
 			Ok: function() {
 				$(this).dialog('close');
 				$(this).children().remove();
+			}
+		}
+	};
+	$(dialog).dialog(details);
+};
+
+COMMANDS.view_top_n = function(json) {
+	var list = json.list;
+	var dialog = $('#viewdialog');
+	var ul = $('<ul>');
+
+	for(var c = 0; c < list.length; c++) {
+		ul.append($(makeRadioListCard(list[c])).addClass('cardDeck'));
+	}
+	$(dialog).append($('<form>').append($(ul)));
+	var details = {
+		title: json.name,
+		buttons: {
+			Ok: function() {
+				$(this).dialog('close');
+				$(this).children().remove();
+			},
+			Up: function() {
+				var sel = $('#viewdialog form ul li input:radio:checked');
+				alert($(sel).val());
 			}
 		}
 	};

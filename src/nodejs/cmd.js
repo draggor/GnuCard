@@ -237,7 +237,7 @@ function viewListCard(c) {
 COMMANDS.viewLibrary = function(client, args) {
 	var	player = game.clientsToPlayers[client];
 
-	calljs(client, ['view_dialog', {list: player.zones.deck.map(viewListCard)}]);
+	calljs(client, ['view_top_n', {list: player.zones.deck.map(viewListCard)}]);
 	callalljs(client, ['notify', {message: player.name + ' is looking at its library.'}]);
 };
 
