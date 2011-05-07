@@ -42,3 +42,48 @@ exports.delayMap = function(items, callback, delay) {
 	o.id = f();
 	return o;
 }
+
+function doto(obj) {
+	for(var i = 1; i < arguments.length; i++) {
+		for(var j = 1; j < arguments[i].length; j++) {
+			arguments[i][j].apply(obj, [obj].concat(arguments[i][j]));
+		}
+	}
+}
+
+/*
+function f1(obj, a1, a2) {
+	obj.f1 = a1+a2;
+}
+
+function f2(obj, a1) {
+	obj.f2 = a1;
+}
+
+function f3() {
+	this.f3 = "yay?";
+}
+
+var m = {};
+doto(m,
+	[f1, [3, 5]],
+	[f2, ["asdf"]]);
+
+doto(m,
+	[f1,
+		[3, 5],
+		[4, 6]],
+	[f2,
+		["asfd"]]);
+
+doto(m, f1,
+	[3, 5],
+	[2, 4],
+	[9, 8]);
+
+doto(canvas, drawSquare,
+	[23, 44],
+	[45, 88],
+	[12, 9],
+	[355, 655]);
+*/

@@ -1,0 +1,96 @@
+<html>
+  <head>
+    <link rel="stylesheet" type="text/css" href="mtg.css" />
+    <link rel="stylesheet" type="text/css" href="jquery.contextmenu.css" />
+    <link rel="stylesheet" type="text/css" href="cupertino/jquery-ui-1.8.12.custom.css" />
+    <script type="text/javascript" src="jquery-1.4.2.js"></script>
+    <script type="text/javascript" src="jquery-ui-1.8.4.custom.min.js"></script>
+    <script type="text/javascript" src="jquery.contextmenu.js"></script>
+    <script type="text/javascript" src="Socket.IO/socket.io.js"></script>
+    <script type="text/javascript" src="webtoolkit.aim.js"></script>
+    <script type="text/javascript" src="mtg.js"></script>
+    <script type="text/javascript">
+      io.setPath('/Socket.IO/');
+      $(document).ready(function() {
+	      init();
+      });
+    </script>
+  </head>
+
+<body>
+
+</script>
+
+<div id="storage"></div>
+
+<div id="leftpane">
+
+  <div id="cardinfodialog" title="Card Image">
+
+	<div id="cardinfo">
+
+	</div>
+
+  </div>
+
+  <div id="handdialog" title="Hand">
+
+	<ul id='hand'>
+
+	</ul>
+
+  </div>
+
+</div>
+
+<div id="mainarea">
+
+  <div id="header" title='Menu'>
+
+    <span>
+      <span id="library">Library</span>
+      <span id="graveyard">Graveyard</span>
+      <span id="rfg">RFG</span>
+    </span>
+    
+    <span id="msgs"></span>
+    <a href="#" id="addcard">Add Card</a>
+    <input type="text" length="5" id="server" value='localhost' />
+    <input type="text" length="5" id="logon_name" />
+    <input type="password" length="5" id="logon_pass" />
+    <a href="#" id="logon">Logon</a>
+    <a href="#" id="deckupload">Upload Deck</a>
+    <a href="#" id="deckselector">Choose Deck</a>
+    <a href="#" id="draw">Draw a Card</a>
+    <input type="text" id="imgsrc" value="http://magiccards.info/scans/" />
+
+  
+  </div>
+  <div id="playarea">
+
+  </div>
+
+</div>
+
+<div id="popups">
+
+	<div id="deckuploaddialog" title="Upload Deck">
+
+	</div>
+
+	<div id="deckselectordialog" title="Deck Selector">
+
+	</div>
+
+	<div id="viewtopndialog" title="View Top N Cards...">
+
+	</div>
+
+	<div id="viewdialog">
+
+	</div>
+
+</div>
+
+</body>
+</html>

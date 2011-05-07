@@ -10,3 +10,4 @@ spoiler_map.js
 /src/js/Socket.IO
 /lib/Socket.IO-node
 /upload
+/node_modules

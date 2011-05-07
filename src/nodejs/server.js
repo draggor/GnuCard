@@ -4,15 +4,15 @@ var	net = require('net'),
 	fs = require('fs'),
 	sys = require('sys'),
 	formidable = require('formidable'),
-	io = require('../../lib/socket.io-node/'),
+	io = require('socket.io'),
 	game = require('./game'),
 	util = require('./util'),
 	cmd = require('./cmd');
 
 var SRC = {
-	html: './src/html/',
-	css: './src/css/',
-	js: './src/js/'
+	html: './src/web/',
+	css: './src/web/',
+	js: './src/web/'
 };
 
 var HEAD_INFO = {
@@ -45,7 +45,7 @@ var server = http.createServer(function(req, res) {
 		res.writeHead(200, {'Content-Type': 'text/html'});
 		res.write(fs.readFileSync(SRC.html + 'upload.html'));
 		res.end();
-	} else if(pieces[2] != null) {
+	} else if(pieces[1] != null) {
 		dispatchURL(path, pieces, res);
 	} else {
 		res.end();
@@ -94,7 +94,7 @@ function dispatchURL(path, pieces, res) {
 		type = pieces[1];
 	
 	res.writeHead(200, {'Content-Type': head.contentType});
-	fs.readFile('./src' + path, head.encoding, function(err, data) {
+	fs.readFile('./src/web' + path, head.encoding, function(err, data) {
 		if(err) {
 			res.end();
 			throw err;

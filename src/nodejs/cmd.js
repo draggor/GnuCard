@@ -24,7 +24,11 @@ function runCmd(client, funcName, args) {
 	var func = COMMANDS[funcName];
 
 	if(func) {
-		func(client, args);
+		try {
+			func(client, args);
+		} catch (err) {
+			console.log('Failure in command ' + funcName + ': ' + err);
+		}
 	} else {
 		calljs(client, ['notify', {message: 'Function ' + funcName + ' not found!'}]);
 	}
