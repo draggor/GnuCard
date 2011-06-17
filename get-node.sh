@@ -4,7 +4,7 @@ if [ "$ver" == "Go to http://nodejs.org and get the latest version.  Usage: get-
 then
 echo $ver
 else
-#wget http://nodejs.org/dist/node-v$ver.tar.gz
+wget http://nodejs.org/dist/node-v$ver.tar.gz
 tar xvzf node-v$ver.tar.gz
 cd node-v$ver
 ./configure
