@@ -1,1 +1,5 @@
-It's a README!
+If you're getting this project fresh and don't have or know what node.js is, run the helper scripts in the following order:
+
+get-node
+get-npm
+get-deps
