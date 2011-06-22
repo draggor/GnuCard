@@ -361,7 +361,8 @@ COMMANDS.toggle_tap = function(json) {
 };
 
 function ev_logon(event) {
-	socket = new io.Socket($('#server').val(), {/*transports: ['websocket'],*/ rememberTransport: false, port:9000});
+//	socket = new io.Socket($('#server').val(), {/*transports: ['websocket'],*/ rememberTransport: false, port:9000});
+	socket = io.connect('http://' + $('#server').val(), {/*transports: ['websocket'],*/ rememberTransport: false, port:9000});
 	socket.on('message', function(data) {
 		runCmd(JSON.parse(data));
 	});
@@ -382,7 +383,7 @@ function ev_logon(event) {
 	socket.on('disconnect', function() {
 		alert("Ya dun got boot'd!");
 	});
-	socket.connect();
+//	socket.connect();
 	event.preventDefault();
 }
 
