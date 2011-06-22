@@ -1,0 +1,172 @@
+info it worked if it ends with ok
+verbose cli [ 'node', '/usr/local/bin/npm', 'update' ]
+info using npm@1.0.1rc5
+info using node@v0.4.8
+verbose config file /home/draggor/.npmrc
+verbose config file /usr/local/etc/npmrc
+info outdated_ about to getDeps /home/draggor/Programming/node.js/gnucard
+info readdir [ 'xml2js', 'socket.io', 'formidable' ]
+info getDeps next [ {}, undefined ]
+info asyncMapped over dir [ 'xml2js', 'socket.io', 'formidable' ]
+info getDeps next [ {},
+info getDeps next   { xml2js: '*', 'socket.io': '*', formidable: '*' } ]
+info back from getDeps [ '/home/draggor/Programming/node.js/gnucard',
+info back from getDeps   null,
+info back from getDeps   { xml2js: '*', 'socket.io': '*', formidable: '*' } ]
+info outdated_ [ '/home/draggor/Programming/node.js/gnucard',
+info outdated_   'xml2js',
+info outdated_   '*' ]
+info about to check [ 'xml2js', '*' ]
+verbose cache add [ 'xml2js', '*' ]
+info addNamed [ 'xml2js', '*' ]
+verbose addNamed [ null, '' ]
+info outdated_ [ '/home/draggor/Programming/node.js/gnucard',
+info outdated_   'socket.io',
+info outdated_   '*' ]
+info about to check [ 'socket.io', '*' ]
+verbose cache add [ 'socket.io', '*' ]
+info addNamed [ 'socket.io', '*' ]
+verbose addNamed [ null, '' ]
+info outdated_ [ '/home/draggor/Programming/node.js/gnucard',
+info outdated_   'formidable',
+info outdated_   '*' ]
+info about to check [ 'formidable', '*' ]
+verbose cache add [ 'formidable', '*' ]
+info addNamed [ 'formidable', '*' ]
+verbose addNamed [ null, '' ]
+silly testEngine { name: 'xml2js',
+silly testEngine   description: 'Simple XML to JavaScript object converter.',
+silly testEngine   version: '0.1.6',
+silly testEngine   author: { name: 'maqr', email: 'maqr.lollerskates@gmail.com' },
+silly testEngine   keywords: [ 'xml', 'json' ],
+silly testEngine   directories: { lib: './lib' },
+silly testEngine   main: './lib/index',
+silly testEngine   dependencies: { sax: '>=0.1.1' },
+silly testEngine   repository: 
+silly testEngine    { type: 'git',
+silly testEngine      url: 'git://github.com/Leonidas-from-XIV/node-xml2js.git' },
+silly testEngine   _id: 'xml2js@0.1.6',
+silly testEngine   engines: { node: '*' },
+silly testEngine   _engineSupported: true,
+silly testEngine   _npmVersion: '1.0.1rc5',
+silly testEngine   _nodeVersion: 'v0.4.8',
+silly testEngine   _defaultsLoaded: true }
+verbose caching /home/draggor/Programming/node.js/gnucard/node_modules/xml2js/package.json
+verbose loadDefaults xml2js@0.1.6
+info validateDep xml2js back from readJson
+info validateDep next [ 'xml2js', '*', '0.1.6', undefined, true, undefined ]
+info waiting for latest
+silly testEngine { name: 'socket.io',
+silly testEngine   description: 'The cross-browser WebSocket',
+silly testEngine   version: '0.6.18',
+silly testEngine   author: 
+silly testEngine    { name: 'Guillermo Rauch',
+silly testEngine      email: 'guillermo@learnboost.com' },
+silly testEngine   contributors: 
+silly testEngine    [ { name: 'Guillermo Rauch', email: 'rauchg@gmail.com' },
+silly testEngine      { name: 'Arnout Kazemier',
+silly testEngine        email: 'info@3rd-eden.com' } ],
+silly testEngine   licenses: 
+silly testEngine    [ { type: 'MIT',
+silly testEngine        url: 'http://github.com/learnboost/Socket.IO-node/raw/master/README.md' } ],
+silly testEngine   repository: 
+silly testEngine    { type: 'git',
+silly testEngine      url: 'git://github.com/learnboost/Socket.IO-node.git' },
+silly testEngine   engine: [ 'node >=0.1.102' ],
+silly testEngine   main: './index',
+silly testEngine   scripts: { test: 'make test' },
+silly testEngine   _id: 'socket.io@0.6.18',
+silly testEngine   engines: { node: '*' },
+silly testEngine   _engineSupported: true,
+silly testEngine   _npmVersion: '1.0.1rc5',
+silly testEngine   _nodeVersion: 'v0.4.8',
+silly testEngine   _defaultsLoaded: true }
+verbose caching /home/draggor/Programming/node.js/gnucard/node_modules/socket.io/package.json
+verbose loadDefaults socket.io@0.6.18
+info validateDep socket.io back from readJson
+info validateDep next [ 'socket.io', '*', '0.6.18', undefined, true, undefined ]
+info waiting for latest
+silly testEngine { name: 'formidable',
+silly testEngine   version: '1.0.1',
+silly testEngine   dependencies: { gently: '>=0.7.0' },
+silly testEngine   directories: { lib: './lib' },
+silly testEngine   main: './lib/index',
+silly testEngine   engines: { node: '*' },
+silly testEngine   devDependencies: {},
+silly testEngine   _id: 'formidable@1.0.1',
+silly testEngine   _engineSupported: true,
+silly testEngine   _npmVersion: '1.0.1rc5',
+silly testEngine   _nodeVersion: 'v0.4.8',
+silly testEngine   _defaultsLoaded: true }
+verbose caching /home/draggor/Programming/node.js/gnucard/node_modules/formidable/package.json
+verbose loadDefaults formidable@1.0.1
+info validateDep formidable back from readJson
+info validateDep next [ 'formidable', '*', '1.0.1', undefined, true, undefined ]
+info waiting for latest
+verbose GET xml2js
+verbose raw, before any munging xml2js
+verbose url resolving [ 'http://registry.npmjs.org/', './xml2js' ]
+verbose url resolved http://registry.npmjs.org/xml2js
+verbose url parsed { protocol: 'http:',
+verbose url parsed   slashes: true,
+verbose url parsed   host: 'registry.npmjs.org',
+verbose url parsed   hostname: 'registry.npmjs.org',
+verbose url parsed   href: 'http://registry.npmjs.org/xml2js',
+verbose url parsed   pathname: '/xml2js' }
+verbose etag "31H0KC7TOIDYSFDM0JVKTWTEU"
+verbose GET socket.io
+verbose raw, before any munging socket.io
+verbose url resolving [ 'http://registry.npmjs.org/', './socket.io' ]
+verbose url resolved http://registry.npmjs.org/socket.io
+verbose url parsed { protocol: 'http:',
+verbose url parsed   slashes: true,
+verbose url parsed   host: 'registry.npmjs.org',
+verbose url parsed   hostname: 'registry.npmjs.org',
+verbose url parsed   href: 'http://registry.npmjs.org/socket.io',
+verbose url parsed   pathname: '/socket.io' }
+verbose etag "8XVZN3VEGXAU4TK84R08OIH9W"
+verbose GET formidable
+verbose raw, before any munging formidable
+verbose url resolving [ 'http://registry.npmjs.org/', './formidable' ]
+verbose url resolved http://registry.npmjs.org/formidable
+verbose url parsed { protocol: 'http:',
+verbose url parsed   slashes: true,
+verbose url parsed   host: 'registry.npmjs.org',
+verbose url parsed   hostname: 'registry.npmjs.org',
+verbose url parsed   href: 'http://registry.npmjs.org/formidable',
+verbose url parsed   pathname: '/formidable' }
+verbose etag "94OAQC6586I4LBR6YQAGNS6LJ"
+verbose response http://registry.npmjs.org/socket.io
+silly chunk {"error":"ucs","reason":"{bad_utf8_character_code}"}
+silly chunk 
+silly get cb [ 500,
+silly get cb   { server: 'CouchDB/1.1.0 (Erlang OTP/R14B)',
+silly get cb     date: 'Fri, 17 Jun 2011 06:41:21 GMT',
+silly get cb     'content-type': 'application/json',
+silly get cb     'content-length': '53',
+silly get cb     'cache-control': 'must-revalidate' } ]
+info validateDep next [ 'socket.io',
+info validateDep next   '*',
+info validateDep next   '0.6.18',
+info validateDep next   undefined,
+info validateDep next   true,
+info validateDep next   { stack: [Getter/Setter],
+info validateDep next     arguments: undefined,
+info validateDep next     type: undefined,
+info validateDep next     message: 'ucs {bad_utf8_character_code}: socket.io' } ]
+ERR! outdated updating { stack: [Getter/Setter],
+ERR! outdated updating   arguments: undefined,
+ERR! outdated updating   type: undefined,
+ERR! outdated updating   message: 'undefined log message' }
+ERR! { stack: [Getter/Setter],
+ERR!   arguments: undefined,
+ERR!   type: undefined,
+ERR!   message: 'ucs {bad_utf8_character_code}: socket.io' }
+ERR! Report this *entire* log at:
+ERR!     <http://github.com/isaacs/npm/issues>
+ERR! or email it to:
+ERR!     <npm-@googlegroups.com>
+ERR! 
+ERR! System Linux 2.6.32-32-generic
+ERR! command "node" "/usr/local/bin/npm" "update"
+verbose exit [ 1, true ]

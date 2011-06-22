@@ -288,6 +288,9 @@ COMMANDS.view_top_n = function(json) {
 			Up: function() {
 				var sel = $('#viewdialog form ul li input:radio:checked');
 				alert($(sel).val());
+			},
+			Down: function() {
+				
 			}
 		}
 	};
